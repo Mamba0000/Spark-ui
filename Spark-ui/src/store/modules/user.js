@@ -30,7 +30,7 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    debugger
+    
     const { username, password } = userInfo
     const req = { account: username.trim(), password: password , refreshToken:'',tenantId:'000000',grantType:'password'}
     return new Promise((resolve, reject) => {
