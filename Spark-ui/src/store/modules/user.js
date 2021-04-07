@@ -30,9 +30,8 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    
     const { username, password } = userInfo
-    const req = { account: username.trim(), password: password , refreshToken:'',tenantId:'000000',grantType:'password'}
+    const req = { account: username.trim(), password: password, refreshToken: '', tenantId: '000000', grantType: 'password' }
     return new Promise((resolve, reject) => {
       login(req).then(response => {
         const { data } = response
@@ -62,6 +61,7 @@ const actions = {
         commit('SET_AVATAR', avatar)
         resolve(data)
       }).catch(error => {
+        debugger
         reject(error)
       })
     })
