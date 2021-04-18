@@ -9,12 +9,17 @@
       <div slot="header" class="clearfix">
         <span>用户列表</span>
         <el-button
-          style="float: right; padding: 3px 0"
-          type="text"
+          style="float: right;"
+          type="primary"
+          plain
+          icon="el-icon-plus"
+          @click="handleAddUser"
         >新增用户</el-button>
         <el-button
-          style="float: right; padding: 3px 0"
-          type="text"
+          style="float: right;margin-right: 20px;"
+          type="success"
+          plain
+          icon="el-icon-bottom"
         >导出用户
         </el-button>
       </div>
@@ -78,15 +83,170 @@
         </el-table-column>
       </el-table>
     </div>
+    <!-- 新增或修改菜单对话框 -->
+    <el-dialog
+      :title="title"
+      :visible.sync="dailogVisibility"
+      width="600px"
+      append-to-body
+    >
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="账户" prop="account">
+              <el-input v-model="form.account" placeholder="请输入账户名称" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="姓名" prop="name">
+              <el-input v-model="form.name" placeholder="请输入姓名" />
+            </el-form-item>
+          </el-col>
+          <el-col v-if="!form.id" :span="12">
+            <el-form-item label="密码" prop="password">
+              <el-input
+                v-model="form.password"
+                type="password"
+                placeholder="请输入密码"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col v-if="!form.id" :span="12">
+            <el-form-item label="确认密码" prop="rePassword">
+              <el-input
+                v-model="form.rePassword"
+                type="password"
+                placeholder="请输入确认密码"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="性别" size="mini">
+              <el-radio-group v-model="form.sex">
+                <el-radio-button label="0">未知</el-radio-button>
+                <el-radio-button label="1">男</el-radio-button>
+                <el-radio-button label="2">女</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="手机号码" prop="telephone">
+              <el-input v-model="form.telephone" placeholder="请输入手机号码" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="角色" prop="roleId">
+              <el-select v-model="form.roleId" placeholder="请选择">
+                <el-option
+                  v-for="item in roleTree"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="部门" prop="departId">
+              <treeselect
+                v-model="form.departId"
+                placeholder="选择部门"
+                :options="menuOptions"
+                :normalizer="normalizer"
+              />
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="出生日期">
+              <el-date-picker
+                v-model="form.birthday"
+                type="date"
+                placeholder="选择日期"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="用户状态">
+              <el-radio-group v-model="form.status" size="mini">
+                <el-radio-button label="0">启用</el-radio-button>
+                <el-radio-button label="1">禁用</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { list as getUserList } from '@/api/user'
+import { list as getUserList, addOrUpdate } from '@/api/user'
+import { list as getRoleList } from '@/api/role'
+
 export default {
   data() {
+    const rePassword = (rule, value, callback) => {
+      if (value) {
+        if (this.form.password !== value) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      } else {
+        callback(new Error('请再次输入密码'))
+      }
+    }
     return {
       tableData: [],
+      roleListData: [],
+      dailogVisibility: false,
+      form: {},
+      reulus: {
+        account: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          {
+            min: 2,
+            max: 20,
+            message: '长度在 2 到 20 个字符',
+            trigger: 'blur'
+          }
+        ],
+        name: [
+          { required: true, message: '请输入姓名', trigger: 'blur' },
+          {
+            min: 2,
+            max: 20,
+            message: '长度在 2 到 20 个字符',
+            trigger: 'blur'
+          }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          {
+            min: 6,
+            max: 20,
+            message: '长度在 6 到 20 个字符',
+            trigger: 'blur'
+          }
+        ],
+        rePassword: [
+          { required: true, validator: rePassword, trigger: 'blur' }
+        ],
+        // resetPassword: [
+        //   { required: true, validator: resetPassword, trigger: 'blur' }
+        // ],
+        departId: [
+          // { required: true, message: '请选择部门', trigger: 'change' }
+        ]
+        // roleId: [{ required: true, message: '请选择角色', trigger: 'change' }]
+      },
       search: {
         account: '',
         current: 1,
@@ -99,6 +259,19 @@ export default {
     this.init()
   },
   methods: {
+    handleAddUser() {
+      this.dailogVisibility = true
+    },
+    submitForm() {
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          addOrUpdate(this.form)
+        }
+      })
+    },
+    cancel() {
+      this.dailogVisibility = false
+    },
     handleEdit(index, row) {
       console.log(index, row)
     },
@@ -107,6 +280,7 @@ export default {
     },
     init() {
       this.list()
+      this.getRoleList()
     },
     list() {
       // this.listLoading = true
@@ -114,6 +288,12 @@ export default {
         this.tableData = response.data.records
         this.total = response.data.total
         //   this.listLoading = false
+      })
+    },
+    getRoleList() {
+      getRoleList({ tenantId: '000000' }).then(response => {
+        debugger
+        this.roleListData = response.data.records
       })
     },
     // 更改表头样式
