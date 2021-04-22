@@ -138,9 +138,9 @@
             <el-form-item label="角色" prop="roleId">
               <el-select v-model="form.roleId" placeholder="请选择">
                 <el-option
-                  v-for="item in roleTree"
+                  v-for="item in roleListData"
                   :key="item.id"
-                  :label="item.name"
+                  :label="item.roleName"
                   :value="item.id"
                 />
               </el-select>
@@ -187,10 +187,17 @@
 </template>
 
 <script>
+
+// eslint-disable-next-line no-unused-vars
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+
 import { list as getUserList, addOrUpdate } from '@/api/user'
 import { list as getRoleList } from '@/api/role'
+import { list as getDeptList } from '@/api/dept'
 
 export default {
+  components: { Treeselect },
   data() {
     const rePassword = (rule, value, callback) => {
       if (value) {
@@ -206,8 +213,10 @@ export default {
     return {
       tableData: [],
       roleListData: [],
+      menuOptions: [],
       dailogVisibility: false,
       form: {},
+      title: '',
       reulus: {
         account: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -261,6 +270,7 @@ export default {
   methods: {
     handleAddUser() {
       this.dailogVisibility = true
+      this.title = '新增用户'
     },
     submitForm() {
       this.$refs['form'].validate(valid => {
@@ -281,6 +291,7 @@ export default {
     init() {
       this.list()
       this.getRoleList()
+      this.getDeptList()
     },
     list() {
       // this.listLoading = true
@@ -292,9 +303,24 @@ export default {
     },
     getRoleList() {
       getRoleList({ tenantId: '000000' }).then(response => {
-        debugger
-        this.roleListData = response.data.records
+        this.roleListData = response.data
       })
+    },
+    getDeptList() {
+      getDeptList({ tenantId: '000000' }).then(response => {
+        debugger
+        const menu = { id: -1, deptName: '主类目', children: [] }
+        menu.children = response.data
+        this.menuOptions.push(menu)
+      })
+    },
+    normalizer(node) {
+      debugger
+      return {
+        id: node.id,
+        label: node.deptName,
+        children: node.children
+      }
     },
     // 更改表头样式
     headerCellStyle({ row, column, rowIndex, columnIndex }) {
