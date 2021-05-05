@@ -1,10 +1,11 @@
 <template>
   <div class="app-container">
+    <!--- top-action  --->
     <el-row type="flex" class="top-action" justify="end" align="middle">
       <el-col
         :span="2"
         :offset="0"
-      ><span style="float:left;">新增用户</span></el-col>
+      ><span style="float:left;">新增租户</span></el-col>
       <el-col :span="2" />
       <el-col :span="6" :offset="12">
         <el-button
@@ -13,7 +14,7 @@
           plain
           icon="el-icon-plus"
           @click="handleAdd"
-        >新增用户</el-button></el-col>
+        >新增租户</el-button></el-col>
 
       <el-col
         :span="2"
@@ -30,28 +31,39 @@
       <el-col
         :span="1"
         :offset="0"
-      ><span style="float:left;">账号名</span></el-col>
+      ><span style="float:left;">租户ID</span></el-col>
 
       <el-col :span="3">
         <el-input
-          v-model="search.account"
+          v-model="search.tenantId"
           size="small"
-          placeholder="请输入账号名"
+          placeholder="请输入租户ID"
           clearable
           @clear="handelSearch"
           @keyup.enter.native="handelSearch"
         /></el-col>
 
       <el-col :span="1" :offset="1">
-        <span
-          style="float:left;"
-        >&emsp;&emsp;姓&emsp;&emsp;&emsp;名</span></el-col>
+        <span style="float:left;">名称</span></el-col>
 
       <el-col :span="3" :offset="0">
         <el-input
-          v-model="search.realName"
+          v-model="search.tenantName"
           size="small"
-          placeholder="请输入姓名"
+          placeholder="请输入租户名称"
+          clearable
+          @clear="handelSearch"
+          @keyup.enter.native="handelSearch"
+        /></el-col>
+
+      <el-col :span="1" :offset="1">
+        <span style="float:left;">电话</span></el-col>
+
+      <el-col :span="3" :offset="0">
+        <el-input
+          v-model="search.contactNumber"
+          size="small"
+          placeholder="请输入租户联系电话"
           clearable
           @clear="handelSearch"
           @keyup.enter.native="handelSearch"
@@ -74,7 +86,7 @@
         @click="handleReseat"
       >重置</el-button></el-col>
     </el-row>
-
+    <!--- table-body--->
     <div class="table-body">
       <el-table
         :data="tableData"
@@ -88,49 +100,39 @@
 
         <el-table-column label="#" type="index" width="50" />
 
-        <el-table-column label="账号" width="180">
+        <el-table-column label="租户ID" width="120">
           <template slot-scope="scope">
-            <span>{{ scope.row.account }}</span>
+            <span>{{ scope.row.tenantId }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="昵称" width="180">
+        <el-table-column label="租户名称" width="160">
           <template slot-scope="scope">
-            <span size="medium">{{ scope.row.nickname }}</span>
+            <span size="medium">{{ scope.row.tenantName }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="姓名" width="180">
+        <el-table-column label="联系人" width="160">
           <template slot-scope="scope">
-            <span size="medium">{{ scope.row.realName }}</span>
+            <span size="medium">{{ scope.row.linkman }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="邮箱" width="180">
+        <el-table-column label="电话" width="160">
           <template slot-scope="scope">
-            <span size="medium">{{ scope.row.email }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="电话" width="180">
-          <template slot-scope="scope">
-            <span size="medium">{{ scope.row.phone }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="性别" width="80">
-          <template slot-scope="scope">
-            <span size="medium">{{ scope.row.sexName }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="生日" width="180">
-          <template slot-scope="scope">
-            <span style="margin-left: 10px">{{
-              dateFormat(scope.row.birthday)
-            }}</span>
+            <span size="medium">{{ scope.row.contactNumber }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column label="租户ID" width="180">
+        <el-table-column label="地址" width="160">
           <template slot-scope="scope">
-            <el-tag size="medium">{{ scope.row.tenantId }}</el-tag>
+            <span size="medium">{{ scope.row.address }}</span>
           </template>
         </el-table-column>
+
+        <el-table-column label="域名" width="160">
+          <template slot-scope="scope">
+            <span size="medium">{{ scope.row.domain }}</span>
+          </template>
+        </el-table-column>
+
         <el-table-column label="状态" width="80">
           <template slot-scope="scope">
             <el-tag size="medium">{{ scope.row.statusName }}</el-tag>
@@ -162,6 +164,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
+
       <copyright />
     </div>
     <!-- 新增或修改菜单对话框 -->
@@ -174,94 +177,38 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="账户" prop="account">
-              <el-input v-model="form.account" placeholder="请输入账户名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="姓名" prop="name">
-              <el-input v-model="form.name" placeholder="请输入姓名" />
-            </el-form-item>
-          </el-col>
-          <el-col v-if="!form.id" :span="12">
-            <el-form-item label="密码" prop="password">
+            <el-form-item label="租户名称" prop="tenantName">
               <el-input
-                v-model="form.password"
-                type="password"
-                placeholder="请输入密码"
+                v-model="form.tenantName"
+                placeholder="请输入租户名称"
               />
             </el-form-item>
           </el-col>
-          <el-col v-if="!form.id" :span="12">
-            <el-form-item label="确认密码" prop="rePassword">
+          <el-col :span="12">
+            <el-form-item label="联系人" prop="linkman">
+              <el-input v-model="form.linkman" placeholder="请输入联系人" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="联系电话" prop="contactNumber">
               <el-input
-                v-model="form.rePassword"
-                type="password"
-                placeholder="请输入确认密码"
+                v-model="form.contactNumber"
+                placeholder="请输入联系电话"
               />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="性别" size="mini">
-              <el-radio-group v-model="form.sex">
-                <el-radio-button label="1">男</el-radio-button>
-                <el-radio-button label="2">女</el-radio-button>
-              </el-radio-group>
+            <el-form-item label="联系地址" prop="address">
+              <el-input v-model="form.address" placeholder="请输入联系地址" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="手机号码" prop="telephone">
-              <el-input v-model="form.telephone" placeholder="请输入手机号码" />
+            <el-form-item label="绑定域名" prop="domain">
+              <el-input v-model="form.domain" placeholder="请输入域名" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="角色" prop="roleId">
-              <el-select v-model="form.roleId" placeholder="请选择">
-                <el-option
-                  v-for="item in roleListData"
-                  :key="item.id"
-                  :label="item.roleName"
-                  :value="item.id"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="岗位" prop="postId">
-              <el-select v-model="form.postId" placeholder="请选择">
-                <el-option
-                  v-for="item in postListData"
-                  :key="item.id"
-                  :label="item.postName"
-                  :value="item.id"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="部门" prop="deptId">
-              <treeselect
-                v-model="form.deptId"
-                placeholder="选择部门"
-                :options="menuOptions"
-                :normalizer="normalizer"
-              />
-            </el-form-item>
-          </el-col>
-
-          <el-col :span="12">
-            <el-form-item label="出生日期">
-              <el-date-picker
-                v-model="form.birthday"
-                type="date"
-                placeholder="选择日期"
-                value-format="yyyy-MM-dd HH:mm:ss"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="用户状态">
+            <el-form-item label="启用状态">
               <el-radio-group v-model="form.status" size="mini">
                 <el-radio-button label="1">启用</el-radio-button>
                 <el-radio-button label="0">禁用</el-radio-button>
@@ -277,56 +224,42 @@
     </el-dialog>
   </div>
 </template>
-
 <script>
-import Treeselect from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-
-import { list as getUserList, addOrUpdate, deleteLogic } from '@/api/user'
-// 角色
-import { list as getRoleList } from '@/api/role'
-// 部门
-import { list as getDeptList } from '@/api/dept'
-// 岗位
-import { list as getPostList } from '@/api/post'
+import { list as getTenantList, addOrUpdate, deleteLogic } from '@/api/tenant'
 
 export default {
-  components: { Treeselect },
   data() {
-    const rePassword = (rule, value, callback) => {
-      if (value) {
-        if (this.form.password !== value) {
-          callback(new Error('两次输入的密码不一致'))
-        } else {
-          callback()
-        }
+    var validatorPhone = function(rule, value, callback) {
+      if (value === '') {
+        callback(new Error('手机号不能为空'))
+      } else if (!/^1\d{10}$/.test(value)) {
+        callback(new Error('手机号格式错误'))
       } else {
-        callback(new Error('请再次输入密码'))
+        callback()
       }
     }
+
     return {
       tableData: [],
-      roleListData: [],
       menuOptions: [],
-      postListData: [],
       selectionList: [],
       total: 0,
       search: {
-        account: '',
-        realName: '',
+        tenantId: '',
+        tenantName: '',
+        contactNumber: '',
         current: 1,
         size: 10
       },
       dailogVisibility: false,
       layout: 'total, sizes, prev, pager, next, jumper',
       form: {
-        status: '1',
-        sex: '1'
+        status: '1'
       },
       title: '',
       rules: {
-        account: [
-          { required: true, message: '请输入用户名', trigger: 'blur' },
+        tenantName: [
+          { required: true, message: '请输入租户名', trigger: 'blur' },
           {
             min: 2,
             max: 20,
@@ -334,8 +267,12 @@ export default {
             trigger: 'blur'
           }
         ],
-        name: [
-          { required: true, message: '请输入姓名', trigger: 'blur' },
+        contactNumber: [
+          {
+            required: true,
+            validator: validatorPhone,
+            trigger: 'blur'
+          },
           {
             min: 2,
             max: 20,
@@ -343,21 +280,24 @@ export default {
             trigger: 'blur'
           }
         ],
-        password: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
+        linkman: [
+          { required: true, message: '请输入联系人名称', trigger: 'blur' },
           {
-            min: 6,
+            min: 2,
             max: 20,
-            message: '长度在 6 到 20 个字符',
+            message: '长度在 2 到 20 个字符',
             trigger: 'blur'
           }
         ],
-        rePassword: [
-          { required: true, validator: rePassword, trigger: 'blur' }
-        ],
-        deptId: [{ required: true, message: '请选择部门', trigger: 'change' }],
-        postId: [{ required: true, message: '请选择岗位', trigger: 'change' }],
-        roleId: [{ required: true, message: '请选择角色', trigger: 'change' }]
+        address: [
+          { required: true, message: '请输入联系人地址', trigger: 'blur' },
+          {
+            min: 2,
+            max: 20,
+            message: '长度在 2 到 20 个字符',
+            trigger: 'blur'
+          }
+        ]
       }
     }
   },
@@ -377,7 +317,7 @@ export default {
     handleAdd() {
       this.resetForm()
       this.dailogVisibility = true
-      this.title = '新增用户'
+      this.title = '新增租户户'
     },
     handleBatchDelete() {
       if (this.selectionList.length === 0) {
@@ -403,30 +343,34 @@ export default {
       this.init()
     },
     handleReseat() {
-      this.search.account = ''
-      this.search.realName = ''
+      this.search.tenantId = ''
+      this.search.tenantName = ''
+      this.search.contactNumber = ''
       this.search.current = 1
       this.init()
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.getUserList()
+      this.getTenantList()
     },
     handleCurrentChange(val) {
       this.search.current = val
-      this.getUserList()
+      this.getTenantList()
     },
     resetForm() {
       this.form = {
-        password: undefined,
-        sort: 1,
-        status: '1',
-        sex: '1'
+        tenantName: undefined,
+        domain: undefined,
+        linkman: undefined,
+        contactNumber: undefined,
+        address: undefined,
+        status: '1'
       }
     },
     submitForm() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          console.log(this.form)
           addOrUpdate(this.form).then(response => {
             if (response.code === 200) {
               this.$message({
@@ -435,6 +379,11 @@ export default {
               })
               this.dailogVisibility = false
               this.init()
+            } else {
+              this.$message({
+                message: '操作失败' + response.message,
+                type: 'error'
+              })
             }
           })
         }
@@ -449,7 +398,7 @@ export default {
     rowEdit(index, row) {
       console.log('' + index + row)
       this.dailogVisibility = true
-      this.title = '编辑用户'
+      this.title = '编辑租户'
       this.form = row
       console.log(index, row)
     },
@@ -477,43 +426,20 @@ export default {
         .catch(function() {})
     },
     init() {
-      // 默认第一页
-      this.search.current = 1
-      this.getUserList()
-      this.getRoleList()
-      this.getDeptList()
-      this.getPostList()
+      this.getTenantList()
     },
-    getUserList() {
+    getTenantList() {
       // this.listLoading = true
       // 分页查询用户
-      getUserList(this.search).then(response => {
+      getTenantList(this.search).then(response => {
         this.tableData = response.data.records
         this.total = response.data.total
-        //   this.listLoading = false
       })
     },
     deleteLogic(ids) {
       // 删除用户
       deleteLogic(ids).then(response => {
         //   this.listLoading = false
-      })
-    },
-    getRoleList() {
-      getRoleList({}).then(response => {
-        this.roleListData = response.data
-      })
-    },
-    getDeptList() {
-      getDeptList({}).then(response => {
-        const menu = { id: -1, deptName: '主类目', children: [] }
-        menu.children = response.data
-        this.menuOptions.push(menu)
-      })
-    },
-    getPostList() {
-      getPostList({}).then(response => {
-        this.postListData = response.data.records
       })
     },
     normalizer(node) {
@@ -552,4 +478,12 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/styles/comm.scss';
+
+.table-body {
+  margin-top: 0px;
+}
+.el-pagination {
+  text-align: center;
+  margin-top: 15px;
+}
 </style>

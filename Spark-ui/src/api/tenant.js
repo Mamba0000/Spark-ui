@@ -1,32 +1,21 @@
 import request from '@/utils/request'
 
-// 用户登录
-export function login(data) {
-  // params URL传参 data:body传参
-  console.log(request)
-  return request({
-    url: '/spark-auth/token',
-    method: 'post',
-    params: data,
-    data
-  })
-}
-
 /**
- *  用户列表
+ *  租户列表
  * @param {*} data
  * @returns
  */
 export function list(data) {
   // params URL传参 data:body传参
   return request({
-    url: '/service-uum/user/list',
+    url: '/service-uum/tenant/list',
     method: 'get',
     params: {
-      account: data.account,
+      tenantId: data.tenantId,
+      tenantName: data.tenantName,
+      contactNumber: data.contactNumber,
       current: data.current,
-      size: data.size,
-      tenantId: data.tenantId
+      size: data.size
     }
   })
 }
@@ -39,7 +28,7 @@ export function list(data) {
 export function deleteLogic(data) {
   // params URL传参 data:body传参
   return request({
-    url: '/service-uum/user/deleteLogic',
+    url: '/service-uum/tenant/deleteLogic',
     method: 'post',
     params: { ids: data }
   })
@@ -54,23 +43,15 @@ export function addOrUpdate(data) {
   // params URL传参 data:body传参
   console.log(request)
   return request({
-    url: '/service-uum/user/addOrUpdate',
+    url: '/service-uum/tenant/addOrUpdate',
     method: 'post',
     data: {
-      account: data.account,
-      avatar: data.avatar,
-      code: data.code,
-      deptId: data.deptId,
-      email: data.email,
       id: data.id,
-      isDeleted: data.isDeleted,
-      name: data.name,
-      password: data.password,
-      phone: data.phone,
-      postId: data.postId,
-      realName: data.realName,
-      sex: data.sex,
-      status: data.status
+      tenantName: data.tenantName,
+      domain: data.domain,
+      linkman: data.linkman,
+      contactNumber: data.contactNumber,
+      address: data.address
     }
   })
 }

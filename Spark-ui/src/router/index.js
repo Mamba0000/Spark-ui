@@ -94,6 +94,18 @@ export const constantRoutes = [
         name: '菜单管理',
         component: () => import('@/views/system/menu'),
         meta: { title: '菜单管理', icon: 'tree' }
+      },
+      {
+        path: 'roleManager',
+        name: '角色管理',
+        component: () => import('@/views/system/role'),
+        meta: { title: '角色管理', icon: 'tree' }
+      },
+      {
+        path: 'tenantManager',
+        name: '租户管理',
+        component: () => import('@/views/system/tenant'),
+        meta: { title: '租户管理', icon: 'tree' }
       }
     ]
   },

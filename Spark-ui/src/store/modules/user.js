@@ -30,12 +30,11 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
-    const req = { account: username.trim(), password: password, refreshToken: '', tenantId: '000000', grantType: 'password' }
+    const { username, password, tenantId } = userInfo
+    const req = { account: username.trim(), password: password, refreshToken: '', tenantId: tenantId, grantType: 'password' }
     return new Promise((resolve, reject) => {
       login(req).then(response => {
         const { data } = response
-        debugger
         commit('SET_TOKEN', data.accessToken)
         setToken(data.accessToken)
         resolve()
@@ -70,14 +69,20 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        removeToken() // must remove  token  first
-        resetRouter()
-        commit('RESET_STATE')
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
+
+      removeToken() // must remove  token  first
+      resetRouter()
+      commit('RESET_STATE')
+      resolve()
+
+      // logout(state.token).then(() => {
+      //   removeToken() // must remove  token  first
+      //   resetRouter()
+      //   commit('RESET_STATE')
+      //   resolve()
+      // }).catch(error => {
+      //   reject(error)
+      // })
     })
   },
 
