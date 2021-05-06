@@ -15,7 +15,6 @@
           icon="el-icon-plus"
           @click="handleAdd"
         >新增角色</el-button></el-col>
-
       <el-col
         :span="2"
       ><el-button
@@ -31,39 +30,25 @@
       <el-col
         :span="1"
         :offset="0"
-      ><span style="float:left;">租户ID</span></el-col>
-
+      ><span style="float:left;">角色名称</span></el-col>
       <el-col :span="3">
         <el-input
-          v-model="search.tenantId"
+          v-model="search.roleName"
           size="small"
-          placeholder="请输入租户ID"
+          placeholder="请输入角色名称"
           clearable
           @clear="handelSearch"
           @keyup.enter.native="handelSearch"
         /></el-col>
 
-      <el-col :span="1" :offset="1">
-        <span style="float:left;">名称</span></el-col>
+      <el-col :span="2" :offset="1">
+        <span style="float:left;">角色别名</span></el-col>
 
       <el-col :span="3" :offset="0">
         <el-input
-          v-model="search.tenantName"
+          v-model="search.roleAlias"
           size="small"
-          placeholder="请输入租户名称"
-          clearable
-          @clear="handelSearch"
-          @keyup.enter.native="handelSearch"
-        /></el-col>
-
-      <el-col :span="1" :offset="1">
-        <span style="float:left;">电话</span></el-col>
-
-      <el-col :span="3" :offset="0">
-        <el-input
-          v-model="search.contactNumber"
-          size="small"
-          placeholder="请输入租户联系电话"
+          placeholder="请输入角色别名"
           clearable
           @clear="handelSearch"
           @keyup.enter.native="handelSearch"
@@ -94,53 +79,33 @@
         :border="true"
         :header-cell-style="headerCellStyle"
         :cell-style="cellStyle"
+        :max-height="600"
         @selection-change="selectionChange"
       >
         <el-table-column type="selection" width="55" />
-
         <el-table-column label="#" type="index" width="50" />
-
-        <el-table-column label="租户ID" width="120">
+        <el-table-column label="角色名称" width="160">
           <template slot-scope="scope">
-            <span>{{ scope.row.tenantId }}</span>
+            <span size="medium">{{ scope.row.roleName }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="租户名称" width="160">
+        <el-table-column label="角色别名" width="160">
           <template slot-scope="scope">
-            <span size="medium">{{ scope.row.tenantName }}</span>
+            <span size="medium">{{ scope.row.roleAlias }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="联系人" width="160">
+        <el-table-column label="租户ID" width="180">
           <template slot-scope="scope">
-            <span size="medium">{{ scope.row.linkman }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="电话" width="160">
-          <template slot-scope="scope">
-            <span size="medium">{{ scope.row.contactNumber }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="地址" width="160">
-          <template slot-scope="scope">
-            <span size="medium">{{ scope.row.address }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="域名" width="160">
-          <template slot-scope="scope">
-            <span size="medium">{{ scope.row.domain }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="状态" width="80">
-          <template slot-scope="scope">
-            <el-tag size="medium">{{ scope.row.statusName }}</el-tag>
+            <el-tag size="medium">{{ scope.row.tenantId }}</el-tag>
           </template>
         </el-table-column>
 
         <el-table-column label="操作">
           <template slot-scope="scope">
+            <el-button
+              size="mini"
+              @click="rowEdit(scope.$index, scope.row)"
+            >权限</el-button>
             <el-button
               size="mini"
               @click="rowEdit(scope.$index, scope.row)"
@@ -153,18 +118,6 @@
           </template>
         </el-table-column>
       </el-table>
-
-      <el-pagination
-        v-show="total > 0"
-        background
-        :current-page="search.current"
-        :page-size="search.size"
-        :layout="layout"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-
       <copyright />
     </div>
     <!-- 新增或修改菜单对话框 -->
@@ -177,42 +130,13 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="租户名称" prop="tenantName">
-              <el-input
-                v-model="form.tenantName"
-                placeholder="请输入租户名称"
-              />
+            <el-form-item label="角色名称" prop="roleName">
+              <el-input v-model="form.roleName" placeholder="请输入角色名称" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="联系人" prop="linkman">
-              <el-input v-model="form.linkman" placeholder="请输入联系人" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="联系电话" prop="contactNumber">
-              <el-input
-                v-model="form.contactNumber"
-                placeholder="请输入联系电话"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="联系地址" prop="address">
-              <el-input v-model="form.address" placeholder="请输入联系地址" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="绑定域名" prop="domain">
-              <el-input v-model="form.domain" placeholder="请输入域名" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="启用状态">
-              <el-radio-group v-model="form.status" size="mini">
-                <el-radio-button label="1">启用</el-radio-button>
-                <el-radio-button label="0">禁用</el-radio-button>
-              </el-radio-group>
+            <el-form-item label="角色别名" prop="roleAlias">
+              <el-input v-model="form.roleAlias" placeholder="请输入角色别名" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -225,41 +149,28 @@
   </div>
 </template>
 <script>
-import { list as getTenantList, addOrUpdate, deleteLogic } from '@/api/tenant'
+import { list as getRoleList, addOrUpdate, deleteLogic } from '@/api/role'
 
 export default {
   data() {
-    var validatorPhone = function(rule, value, callback) {
-      if (value === '') {
-        callback(new Error('手机号不能为空'))
-      } else if (!/^1\d{10}$/.test(value)) {
-        callback(new Error('手机号格式错误'))
-      } else {
-        callback()
-      }
-    }
-
     return {
       tableData: [],
       menuOptions: [],
       selectionList: [],
-      total: 0,
       search: {
-        tenantId: '',
-        tenantName: '',
-        contactNumber: '',
+        roleName: '',
+        roleAlias: '',
         current: 1,
         size: 10
       },
       dailogVisibility: false,
-      layout: 'total, sizes, prev, pager, next, jumper',
       form: {
         status: '1'
       },
       title: '',
       rules: {
-        tenantName: [
-          { required: true, message: '请输入租户名', trigger: 'blur' },
+        roleName: [
+          { required: true, message: '请输入角色名', trigger: 'blur' },
           {
             min: 2,
             max: 20,
@@ -267,30 +178,11 @@ export default {
             trigger: 'blur'
           }
         ],
-        contactNumber: [
+        roleAlias: [
           {
             required: true,
-            validator: validatorPhone,
             trigger: 'blur'
           },
-          {
-            min: 2,
-            max: 20,
-            message: '长度在 2 到 20 个字符',
-            trigger: 'blur'
-          }
-        ],
-        linkman: [
-          { required: true, message: '请输入联系人名称', trigger: 'blur' },
-          {
-            min: 2,
-            max: 20,
-            message: '长度在 2 到 20 个字符',
-            trigger: 'blur'
-          }
-        ],
-        address: [
-          { required: true, message: '请输入联系人地址', trigger: 'blur' },
           {
             min: 2,
             max: 20,
@@ -317,7 +209,7 @@ export default {
     handleAdd() {
       this.resetForm()
       this.dailogVisibility = true
-      this.title = '新增租户户'
+      this.title = '新增角色'
     },
     handleBatchDelete() {
       if (this.selectionList.length === 0) {
@@ -343,9 +235,8 @@ export default {
       this.init()
     },
     handleReseat() {
-      this.search.tenantId = ''
-      this.search.tenantName = ''
-      this.search.contactNumber = ''
+      this.search.roleName = ''
+      this.search.roleAlias = ''
       this.search.current = 1
       this.init()
     },
@@ -359,12 +250,8 @@ export default {
     },
     resetForm() {
       this.form = {
-        tenantName: undefined,
-        domain: undefined,
-        linkman: undefined,
-        contactNumber: undefined,
-        address: undefined,
-        status: '1'
+        roleName: undefined,
+        roleAlias: undefined
       }
     },
     submitForm() {
@@ -397,14 +284,14 @@ export default {
     },
     rowEdit(index, row) {
       this.dailogVisibility = true
-      this.title = '编辑租户'
+      this.title = '编辑角色'
       this.form = row
       console.log(index, row)
     },
     rowDeleteLogic(index, row) {
       const that = this
       this.$confirm(
-        '是否确认删除名称为"' + row.account + '"的数据项?',
+        '是否确认删除名称为"' + row.roleName + '"的数据项?',
         '警告',
         {
           confirmButtonText: '确定',
@@ -425,14 +312,16 @@ export default {
         .catch(function() {})
     },
     init() {
-      this.getTenantList()
+      this.getRoleList()
     },
-    getTenantList() {
+    getRoleList() {
       // this.listLoading = true
       // 分页查询用户
-      getTenantList(this.search).then(response => {
-        this.tableData = response.data.records
-        this.total = response.data.total
+      getRoleList(this.search).then(response => {
+        debugger
+        console.log(this)
+        this.tableData = response.data
+        console.log(this)
       })
     },
     deleteLogic(ids) {
@@ -481,6 +370,7 @@ export default {
 .table-body {
   margin-top: 0px;
 }
+
 .el-pagination {
   text-align: center;
   margin-top: 15px;

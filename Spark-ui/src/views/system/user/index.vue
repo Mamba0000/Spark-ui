@@ -88,37 +88,37 @@
 
         <el-table-column label="#" type="index" width="50" />
 
-        <el-table-column label="账号" width="180">
+        <el-table-column label="账号" width="160">
           <template slot-scope="scope">
             <span>{{ scope.row.account }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="昵称" width="180">
+        <el-table-column label="昵称" width="160">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.nickname }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="姓名" width="180">
+        <el-table-column label="姓名" width="160">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.realName }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="邮箱" width="180">
+        <el-table-column label="邮箱" width="160">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.email }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="电话" width="180">
+        <el-table-column label="电话" width="160">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.phone }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="性别" width="80">
+        <el-table-column label="性别" width="60">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.sexName }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="生日" width="180">
+        <el-table-column label="生日" width="80">
           <template slot-scope="scope">
             <span style="margin-left: 10px">{{
               dateFormat(scope.row.birthday)
@@ -143,6 +143,11 @@
               size="mini"
               @click="rowEdit(scope.$index, scope.row)"
             >编辑</el-button>
+            <el-button
+              size="mini"
+              type="primary"
+              @click="rowEdit(scope.$index, scope.row)"
+            >修改密码</el-button>
             <el-button
               size="mini"
               type="danger"
@@ -210,8 +215,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="手机号码" prop="telephone">
-              <el-input v-model="form.telephone" placeholder="请输入手机号码" />
+            <el-form-item label="手机号码" prop="phone">
+              <el-input v-model="form.phone" placeholder="请输入手机号码" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -345,6 +350,15 @@ export default {
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
+          {
+            min: 6,
+            max: 20,
+            message: '长度在 6 到 20 个字符',
+            trigger: 'blur'
+          }
+        ],
+        phone: [
+          { required: true, message: '请输入手机号码', trigger: 'blur' },
           {
             min: 6,
             max: 20,

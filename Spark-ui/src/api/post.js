@@ -10,8 +10,7 @@ export function list(data) {
     url: '/service-uum/post/list',
     method: 'get',
     params: {
-      deptName: data.deptName,
-      tenantId: data.tenantId
+      deptName: data.deptName
     }
   })
 }

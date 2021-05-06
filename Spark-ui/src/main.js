@@ -36,8 +36,6 @@ import Copyright from '@/views/copyright'
 
 Vue.component('copyright', Copyright)
 
-
-
 Vue.config.productionTip = false
 
 new Vue({

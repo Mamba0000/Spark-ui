@@ -5,7 +5,7 @@
       <el-col
         :span="2"
         :offset="0"
-      ><span style="float:left;">新增租户</span></el-col>
+      ><span style="float:left;">租户管理</span></el-col>
       <el-col :span="2" />
       <el-col :span="6" :offset="12">
         <el-button
@@ -317,7 +317,7 @@ export default {
     handleAdd() {
       this.resetForm()
       this.dailogVisibility = true
-      this.title = '新增租户户'
+      this.title = '新增租户'
     },
     handleBatchDelete() {
       if (this.selectionList.length === 0) {
@@ -396,7 +396,6 @@ export default {
       this.dailogVisibility = false
     },
     rowEdit(index, row) {
-      console.log('' + index + row)
       this.dailogVisibility = true
       this.title = '编辑租户'
       this.form = row
