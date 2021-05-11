@@ -1,52 +1,40 @@
 import request from '@/utils/request'
 
-// 用户登录
-export function login(data) {
-  // params URL传参 data:body传参
-  console.log(request)
-  return request({
-    url: '/spark-auth/token',
-    method: 'post',
-    params: data,
-    data
-  })
-}
-
 /**
- *  用户列表
+ *  权限列表
  * @param {*} data
  * @returns
  */
 export function list(data) {
   // params URL传参 data:body传参
   return request({
-    url: '/service-uum/user/list',
+    url: '/service-uum/permission/list',
     method: 'get',
     params: {
-      account: data.account,
-      current: data.current,
+      name: data.name,
+      value: data.value,
       size: data.size,
-      tenantId: data.tenantId
+      current: data.current
     }
   })
 }
 
 /**
- * 删除用户
+ * 删除权限
  * @param {*} data  '12375,12321'
  * @returns
  */
 export function deleteLogic(data) {
   // params URL传参 data:body传参
   return request({
-    url: '/service-uum/user/deleteLogic',
+    url: '/service-uum/permission/deleteLogic',
     method: 'post',
     params: { ids: data }
   })
 }
 
 /**
- * 添加或修改用户
+ * 添加或修改权限
  * @param {} data
  * @returns
  */
@@ -54,38 +42,13 @@ export function addOrUpdate(data) {
   // params URL传参 data:body传参
   console.log(request)
   return request({
-    url: '/service-uum/user/addOrUpdate',
+    url: '/service-uum/permission/addOrUpdate',
     method: 'post',
     data: {
-      account: data.account,
-      avatar: data.avatar,
-      code: data.code,
-      deptId: data.deptId,
-      email: data.email,
-      id: data.id,
-      isDeleted: data.isDeleted,
       name: data.name,
-      password: data.password,
-      phone: data.phone,
-      postId: data.postId,
-      realName: data.realName,
-      sex: data.sex,
-      status: data.status
+      value: data.value,
+      description: data.description,
+      categoryId: data.categoryId
     }
-  })
-}
-
-export function info(token) {
-  return request({
-    url: '/vue-admin-template/user/info',
-    method: 'get',
-    params: { token }
-  })
-}
-
-export function logout() {
-  return request({
-    url: '/vue-admin-template/user/logout',
-    method: 'post'
   })
 }

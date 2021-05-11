@@ -25,6 +25,8 @@
       >批量删除</el-button></el-col>
     </el-row>
     <!--- top-search  --->
+
+    <!--- table-body  --->
     <div class="table-body">
       <el-table
         :data="tableData"
@@ -46,12 +48,12 @@
             <span>{{ scope.row.name }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="别名" width="160" prop="alias">
+        <el-table-column label="别名" width="120" prop="alias">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.alias }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="编码" width="160" prop="code">
+        <el-table-column label="编码" width="120" prop="code">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.code }}</span>
           </template>
@@ -61,7 +63,7 @@
             <span size="medium">{{ scope.row.path }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="排序" width="160" prop="sort">
+        <el-table-column label="排序" width="80" prop="sort">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.sort }}</span>
           </template>
@@ -90,7 +92,8 @@
             >编辑</el-button>
             <el-button
               size="mini"
-              @click="rowEdit(scope.$index, scope.row)"
+              :disabled="!(scope.row.category == 1)"
+              @click="rowAdd(scope.$index, scope.row)"
             >新增子项</el-button>
             <el-button
               size="mini"
@@ -106,82 +109,23 @@
     <!-- 新增或修改菜单对话框 -->
     <el-dialog
       :title="title"
-      :visible.sync="dailogVisibility"
+      :visible.sync="dialogVisibility"
       width="600px"
       append-to-body
     >
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form
+        ref="form"
+        :model="form"
+        :rules="rules"
+        label-width="80px"
+        label-position="right"
+      >
         <el-row>
-          <el-col :span="12">
-            <el-form-item label="账户" prop="account">
-              <el-input v-model="form.account" placeholder="请输入账户名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="姓名" prop="name">
-              <el-input v-model="form.name" placeholder="请输入姓名" />
-            </el-form-item>
-          </el-col>
-          <el-col v-if="!form.id" :span="12">
-            <el-form-item label="密码" prop="password">
-              <el-input
-                v-model="form.password"
-                type="password"
-                placeholder="请输入密码"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col v-if="!form.id" :span="12">
-            <el-form-item label="确认密码" prop="rePassword">
-              <el-input
-                v-model="form.rePassword"
-                type="password"
-                placeholder="请输入确认密码"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="性别" size="mini">
-              <el-radio-group v-model="form.sex">
-                <el-radio-button label="1">男</el-radio-button>
-                <el-radio-button label="2">女</el-radio-button>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="手机号码" prop="phone">
-              <el-input v-model="form.phone" placeholder="请输入手机号码" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="角色" prop="roleId">
-              <el-select v-model="form.roleId" placeholder="请选择">
-                <el-option
-                  v-for="item in roleListData"
-                  :key="item.id"
-                  :label="item.roleName"
-                  :value="item.id"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="岗位" prop="postId">
-              <el-select v-model="form.postId" placeholder="请选择">
-                <el-option
-                  v-for="item in postListData"
-                  :key="item.id"
-                  :label="item.postName"
-                  :value="item.id"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="部门" prop="deptId">
+          <el-col :span="24">
+            <el-form-item label="上级菜单" prop="deptId">
               <treeselect
-                v-model="form.deptId"
-                placeholder="选择部门"
+                v-model="form.parentId"
+                placeholder="选择上级菜单"
                 :options="menuOptions"
                 :normalizer="normalizer"
               />
@@ -189,21 +133,73 @@
           </el-col>
 
           <el-col :span="12">
-            <el-form-item label="出生日期">
-              <el-date-picker
-                v-model="form.birthday"
-                type="date"
-                placeholder="选择日期"
-                value-format="yyyy-MM-dd HH:mm:ss"
-                style="width: 100%"
+            <el-form-item label="菜单类型">
+              <el-radio-group v-model="form.category" size="mini">
+                <template v-if="!form.id">
+                  <div>
+                    <el-radio-button label="1">目录</el-radio-button>
+                    <el-radio-button label="2">菜单</el-radio-button>
+                    <el-radio-button label="3">按钮</el-radio-button>
+                  </div>
+                </template>
+                <template v-else>
+                  <div>
+                    <el-radio-button
+                      label="1"
+                      :disabled="form.category != 1"
+                    >目录</el-radio-button>
+                    <el-radio-button
+                      label="2"
+                      :disabled="form.category != 2"
+                    >菜单</el-radio-button>
+                    <el-radio-button
+                      label="3"
+                      :disabled="form.category != 3"
+                    >按钮</el-radio-button>
+                  </div> </template>>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="24">
+            <el-form-item label="菜单图标" prop="icon">
+              <el-input v-model="form.icon" placeholder="请输入菜单图标" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="菜单名称" prop="name">
+              <el-input v-model="form.name" placeholder="请输入菜单名称" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="显示排序" prop="sort">
+              <el-input-number
+                v-model="form.sort"
+                controls-position="right"
+                :min="0"
               />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="用户状态">
-              <el-radio-group v-model="form.status" size="mini">
+            <el-form-item label="路由地址" prop="path">
+              <el-input v-model="form.path" placeholder="请输入路由地址" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="菜单状态" size="mini" prop="status">
+              <el-radio-group v-model="form.status">
                 <el-radio-button label="1">启用</el-radio-button>
-                <el-radio-button label="0">禁用</el-radio-button>
+                <el-radio-button label="0">不启用</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="是否隐藏" size="mini" prop="hidden">
+              <el-radio-group v-model="form.hidden">
+                <el-radio-button label="1">隐藏</el-radio-button>
+                <el-radio-button label="0">不隐藏</el-radio-button>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -225,80 +221,43 @@ import { tree, addOrUpdate, deleteLogic } from '@/api/menu'
 export default {
   components: { Treeselect },
   data() {
-    const rePassword = (rule, value, callback) => {
-      if (value) {
-        if (this.form.password !== value) {
-          callback(new Error('两次输入的密码不一致'))
-        } else {
-          callback()
-        }
-      } else {
-        callback(new Error('请再次输入密码'))
-      }
-    }
     return {
       tableData: [],
-      roleListData: [],
+      search: {},
       menuOptions: [],
       postListData: [],
       selectionList: [],
-      total: 0,
-      search: {
-        account: '',
-        realName: '',
-        current: 1,
-        size: 10
-      },
-      dailogVisibility: false,
+      dialogVisibility: false,
       layout: 'total, sizes, prev, pager, next, jumper',
       form: {
+        sort: 1,
         status: '1',
-        sex: '1'
+        category: '1',
+        hidden: '0'
       },
       title: '',
       rules: {
-        account: [
-          { required: true, message: '请输入用户名', trigger: 'blur' },
-          {
-            min: 2,
-            max: 20,
-            message: '长度在 2 到 20 个字符',
-            trigger: 'blur'
-          }
+        parentId: [
+          { required: true, message: '上级菜单不能为空', trigger: 'blur' }
         ],
         name: [
-          { required: true, message: '请输入姓名', trigger: 'blur' },
-          {
-            min: 2,
-            max: 20,
-            message: '长度在 2 到 20 个字符',
-            trigger: 'blur'
-          }
+          { required: true, message: '菜单名称不能为空', trigger: 'blur' }
         ],
-        password: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
-          {
-            min: 6,
-            max: 20,
-            message: '长度在 6 到 20 个字符',
-            trigger: 'blur'
-          }
+        icon: [
+          { required: true, message: '菜单图标不能为空', trigger: 'blur' }
         ],
-        phone: [
-          { required: true, message: '请输入手机号码', trigger: 'blur' },
-          {
-            min: 6,
-            max: 20,
-            message: '长度在 6 到 20 个字符',
-            trigger: 'blur'
-          }
+        sort: [
+          { required: true, message: '显示排序不能为空', trigger: 'blur' }
         ],
-        rePassword: [
-          { required: true, validator: rePassword, trigger: 'blur' }
+        path: [
+          { required: true, message: '路由地址不能为空', trigger: 'blur' }
         ],
-        deptId: [{ required: true, message: '请选择部门', trigger: 'change' }],
-        postId: [{ required: true, message: '请选择岗位', trigger: 'change' }],
-        roleId: [{ required: true, message: '请选择角色', trigger: 'change' }]
+        status: [
+          { required: true, message: '菜单状态不能为空', trigger: 'blur' }
+        ],
+        hidden: [
+          { required: true, message: '是否隐藏不能为空', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -317,8 +276,8 @@ export default {
   methods: {
     handleAdd() {
       this.resetForm()
-      this.dailogVisibility = true
-      this.title = '新增用户'
+      this.dialogVisibility = true
+      this.title = '新增菜单'
     },
     handleBatchDelete() {
       if (this.selectionList.length === 0) {
@@ -340,12 +299,10 @@ export default {
           .catch(function() {})
       }
     },
-    handelSearch() {
+    handleSearch() {
       this.init()
     },
     handleReseat() {
-      this.search.account = ''
-      this.search.realName = ''
       this.search.current = 1
       this.init()
     },
@@ -359,10 +316,10 @@ export default {
     },
     resetForm() {
       this.form = {
-        password: undefined,
         sort: 1,
         status: '1',
-        sex: '1'
+        category: '1',
+        hidden: '0'
       }
     },
     submitForm() {
@@ -374,7 +331,7 @@ export default {
                 message: '操作成功',
                 type: 'success'
               })
-              this.dailogVisibility = false
+              this.dialogVisibility = false
               this.init()
             }
           })
@@ -385,19 +342,25 @@ export default {
       this.selectionList = list
     },
     cancel() {
-      this.dailogVisibility = false
+      this.dialogVisibility = false
     },
     rowEdit(index, row) {
-      console.log('' + index + row)
-      this.dailogVisibility = true
-      this.title = '编辑用户'
+      this.dialogVisibility = true
+      this.title = '编辑菜单'
       this.form = row
+      console.log(index, row)
+    },
+    rowAdd(index, row) {
+      this.dialogVisibility = true
+      this.title = '新增子项'
+      this.resetForm()
+      this.form.parentId = row.id
       console.log(index, row)
     },
     rowDeleteLogic(index, row) {
       const that = this
       this.$confirm(
-        '是否确认删除名称为"' + row.account + '"的数据项?',
+        '是否确认删除名称为"' + row.name + '"的数据项?',
         '警告',
         {
           confirmButtonText: '确定',
@@ -423,24 +386,26 @@ export default {
       this.tree()
     },
     tree() {
-      // this.listLoading = true
-      // 分页查询用户
       tree(this.search).then(response => {
         this.tableData = response.data
         this.total = response.data.total
-        //   this.listLoading = false
+        this.menuOptions = []
+        const menu = { id: 0, name: '顶级菜单', children: [] }
+        menu.children = response.data
+        this.menuOptions.push(menu)
+
+        // this.menuOptions = response.data
       })
     },
     deleteLogic(ids) {
-      // 删除用户
       deleteLogic(ids).then(response => {
-        //   this.listLoading = false
+        this.tree()
       })
     },
     normalizer(node) {
       return {
         id: node.id,
-        label: node.deptName,
+        label: node.name,
         children: node.children
       }
     },
@@ -456,16 +421,6 @@ export default {
       // if (columnIndex !== 1 && columnIndex !== 3) {
       return 'text-align: center'
       // }
-    },
-    dateFormat(datetime) {
-      if (datetime) {
-        datetime = new Date(datetime)
-        const y = datetime.getFullYear() + '-'
-        const mon = datetime.getMonth() + 1 + '-'
-        const d = datetime.getDate()
-        return y + mon + d
-      }
-      return ''
     }
   }
 }

@@ -31,59 +31,22 @@
       </el-col>
     </el-row>
     <!--- top-search  --->
-    <el-row type="flex" class="top-search" justify="start" align="middle">
-      <el-col
-        :span="1"
-        :offset="0"
-      ><span style="float:left;">角色名称</span>
-      </el-col>
-      <el-col :span="3">
-        <el-input
-          v-model="search.roleName"
-          size="small"
-          placeholder="请输入角色名称"
-          clearable
-          @clear="handelSearch"
-          @keyup.enter.native="handelSearch"
-        />
-      </el-col>
-
-      <el-col :span="2" :offset="1">
-        <span style="float:left;">角色别名</span></el-col>
-
-      <el-col :span="3" :offset="0">
-        <el-input
-          v-model="search.roleAlias"
-          size="small"
-          placeholder="请输入角色别名"
-          clearable
-          @clear="handelSearch"
-          @keyup.enter.native="handelSearch"
-        />
-      </el-col>
-
-      <el-col :span="2" :offset="0">
-        <el-button
-          style="float: right;"
-          type="primary"
-          icon="el-icon-search"
-          @click="handelSearch"
-        >搜索
-        </el-button>
-      </el-col>
-
-      <el-col
-        :span="2"
-      >
-        <el-button
-          style="float: right;"
-          plain
-          icon="el-icon-delete"
-          @click="handleReseat"
-        >重置
-        </el-button>
-      </el-col>
-    </el-row>
+    <div class="top-search">
+      <el-form :inline="true" :model="search" class="demo-form-inline">
+        <el-form-item label="角色名称">
+          <el-input v-model="search.roleName" placeholder="请输入角色名称"></el-input>
+        </el-form-item>
+        <el-form-item label="角色别名">
+          <el-input v-model="search.roleAlias" placeholder="请输入角色别名"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch" icon="el-icon-search">查询</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" plain @click="handleReseat" icon="el-icon-delete">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
     <!--- table-body--->
     <div class="table-body">
       <el-table
@@ -117,13 +80,15 @@
           <template slot-scope="scope">
             <el-button
               size="mini"
-              @click="rowPermissonEdit(scope.$index, scope.row)"
-            >权限
+              type="success"
+              @click="rowRolePermissionEdit(scope.$index, scope.row)"
+            >权限配置
             </el-button>
             <el-button
               size="mini"
-              @click="rowMenuEdit(scope.$index, scope.row)"
-            >菜单
+              type="primary"
+              @click="rowRoleMenuEdit(scope.$index, scope.row)"
+            >菜单配置
             </el-button>
             <el-button
               size="mini"
@@ -141,10 +106,11 @@
       </el-table>
       <copyright/>
     </div>
+
     <!-- 新增或修改菜单对话框 -->
     <el-dialog
       :title="title"
-      :visible.sync="dailogVisibility"
+      :visible.sync="dialogVisibility"
       width="600px"
       append-to-body
     >
@@ -168,57 +134,76 @@
       </div>
     </el-dialog>
 
+    <!-- 角色 菜单 -->
     <el-dialog
       :title="titleRoleMenu"
-      :visible.sync="dailogVisibilityRoleMenu"
+      :visible.sync="dialogVisibilityRoleMenu"
       width="600px"
       append-to-body
     >
       <el-tree
-        :data="data"
+        :data="dataRoleMenu"
         show-checkbox
+        ref="treeRoleMenu"
         node-key="id"
-        :default-expanded-keys="[2, 3]"
-        :default-checked-keys="[5]"
+        :default-expanded-keys="defaultCheckedMenuKeys"
+        :default-checked-keys="defaultCheckedMenuKeys"
         :props="defaultProps"
       />
-
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button type="primary" @click="submitFormRoleMenu">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
 
+    <!--角色 权限-->
     <el-dialog
       :title="titleRolePermission"
-      :visible.sync="dailogVisibilityRolePermission"
+      :visible.sync="dialogVisibilityRolePermission"
       width="600px"
       append-to-body
     >
       <el-tree
-        :data="data"
+        :data="dataRolePermission"
         show-checkbox
+        ref="treeRolePermission"
         node-key="id"
-        :default-expanded-keys="[2, 3]"
-        :default-checked-keys="[5]"
+        :default-expanded-keys="defaultCheckedPermissionKeys"
+        :default-checked-keys="defaultCheckedPermissionKeys"
         :props="defaultProps"
       />
 
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button type="primary" @click="submitFormRolePermission">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 <script>
-import { list as getRoleList, addOrUpdate, deleteLogic } from '@/api/role'
+import {
+  addOrUpdate,
+  deleteLogic,
+  grantRoleMenu,
+  grantRolePermission,
+  list as getRoleList,
+  listAllMenuByRoleIds,
+  listAllTreePermissionByRoleIds
+} from '@/api/role'
 
 export default {
   data() {
     return {
       tableData: [],
-      menuOptions: [],
+      currentRow: undefined,
+      dataRoleMenu: [],
+      defaultCheckedMenuKeys: [],
+      dataRolePermission: [],
+      defaultCheckedPermissionKeys: [],
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      },
       selectionList: [],
       search: {
         roleName: '',
@@ -226,7 +211,9 @@ export default {
         current: 1,
         size: 10
       },
-      dailogVisibility: false,
+      dialogVisibility: false,
+      dialogVisibilityRoleMenu: false,
+      dialogVisibilityRolePermission: false,
       form: {
         status: '1'
       },
@@ -273,7 +260,7 @@ export default {
   methods: {
     handleAdd() {
       this.resetForm()
-      this.dailogVisibility = true
+      this.dialogVisibility = true
       this.title = '新增角色'
     },
     handleBatchDelete() {
@@ -297,7 +284,7 @@ export default {
           })
       }
     },
-    handelSearch() {
+    handleSearch() {
       this.init()
     },
     handleReseat() {
@@ -330,7 +317,7 @@ export default {
                 message: '操作成功',
                 type: 'success'
               })
-              this.dailogVisibility = false
+              this.dialogVisibility = false
               this.init()
             } else {
               this.$message({
@@ -342,29 +329,68 @@ export default {
         }
       })
     },
+    submitFormRoleMenu() {
+      // 角色菜单关系 treeRoleMenu
+      const data = { roleIds: [this.currentRow.id], menuIds: this.$refs.treeRoleMenu.getCheckedKeys() }
+      grantRoleMenu(data).then(response => {
+        if (response.code === 200) {
+          this.$message({
+            message: '操作成功',
+            type: 'success'
+          })
+          this.dialogVisibilityRoleMenu = false
+          this.init()
+        } else {
+          this.$message({
+            message: '操作失败' + response.message,
+            type: 'error'
+          })
+        }
+      })
+    },
+    submitFormRolePermission() {
+      // 角色权限关系
+      const data = { roleIds: [this.currentRow.id], permissionIds: this.$refs.treeRolePermission.getCheckedKeys() }
+      grantRolePermission(data).then(response => {
+        if (response.code === 200) {
+          this.$message({
+            message: '操作成功',
+            type: 'success'
+          })
+          this.dialogVisibilityRoleMenu = false
+          this.init()
+        } else {
+          this.$message({
+            message: '操作失败' + response.message,
+            type: 'error'
+          })
+        }
+      })
+    },
     selectionChange(list) {
       this.selectionList = list
     },
     cancel() {
-      this.dailogVisibility = false
+      this.dialogVisibility = false
+      this.dialogVisibilityRoleMenu = false
+      this.dialogVisibilityRolePermission = false
     },
     rowEdit(index, row) {
-      this.dailogVisibility = true
+      this.dialogVisibility = true
       this.title = '编辑角色'
       this.form = row
       console.log(index, row)
     },
     rowRoleMenuEdit(index, row) {
-      this.dailogVisibilityRoleMenu = true
+      this.dialogVisibilityRoleMenu = true
       this.titleRoleMenu = '菜单设置'
-      // this.form = row
-      console.log(index, row)
+      this.currentRow = row
+      this.listAllMenuByRoleIds(row.id)
     },
-    rowRolePermissonEdit(index, row) {
-      this.dailogVisibilityRolePermisson = true
+    rowRolePermissionEdit(index, row) {
+      this.dialogVisibilityRolePermission = true
       this.titleRolePermission = '权限设置'
-      // this.form = row
-      console.log(index, row)
+      this.listAllTreePermissionByRoleIds(row.id)
     },
     rowDeleteLogic(index, row) {
       const that = this
@@ -397,7 +423,6 @@ export default {
       // this.listLoading = true
       // 分页查询用户
       getRoleList(this.search).then(response => {
-        debugger
         console.log(this)
         this.tableData = response.data
         console.log(this)
@@ -409,12 +434,28 @@ export default {
         //   this.listLoading = false
       })
     },
-    normalizer(node) {
-      return {
-        id: node.id,
-        label: node.deptName,
-        children: node.children
+    listAllMenuByRoleIds(ids) {
+      listAllMenuByRoleIds(ids).then(response => {
+        this.dataRoleMenu = response.data
+        this.defaultCheckedMenuKeys = this.getCheckedId(this.dataRoleMenu)
+      })
+    },
+    listAllTreePermissionByRoleIds(ids) {
+      listAllTreePermissionByRoleIds(ids).then(response => {
+        this.dataRolePermission = response.data
+        this.defaultCheckedPermissionKeys = this.getCheckedId(this.dataRolePermission)
+      })
+    },
+    getCheckedId(data) { // 获取选中的id
+      const array = []
+      function list(data) {
+        data.forEach(item => {
+          if (item.check) array.push(item.id)
+          if (item.children) list(item.children)
+        })
       }
+      list(data)
+      return array
     },
     // 格式处理相关
     // 更改表头样式
@@ -444,7 +485,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/comm.scss';
+
+@import "@/styles/comm.scss";
 
 .table-body {
   margin-top: 0px;
@@ -454,4 +496,5 @@ export default {
   text-align: center;
   margin-top: 15px;
 }
+
 </style>

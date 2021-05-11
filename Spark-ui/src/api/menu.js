@@ -66,11 +66,15 @@ export function addOrUpdate(data) {
       alias: data.alias,
       path: data.path,
       id: data.id,
+      sort: data.sort,
       source: data.source,
       category: data.category,
       action: data.action,
       isOpen: data.isOpen,
       remark: data.remark,
+      hidden: data.hidden,
+      icon: data.icon,
+      status: data.status,
       isDeleted: data.isDeleted
     }
   })

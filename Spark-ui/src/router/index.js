@@ -90,16 +90,22 @@ export const constantRoutes = [
         meta: { title: '用户管理', icon: 'table' }
       },
       {
-        path: 'menuManager',
-        name: '菜单管理',
-        component: () => import('@/views/system/menu'),
-        meta: { title: '菜单管理', icon: 'tree' }
+        path: 'permissionManager',
+        name: '权限管理',
+        component: () => import('@/views/system/permission'),
+        meta: { title: '权限管理', icon: 'tree' }
       },
       {
         path: 'roleManager',
         name: '角色管理',
         component: () => import('@/views/system/role'),
         meta: { title: '角色管理', icon: 'tree' }
+      },
+      {
+        path: 'menuManager',
+        name: '菜单管理',
+        component: () => import('@/views/system/menu'),
+        meta: { title: '菜单管理', icon: 'tree' }
       },
       {
         path: 'tenantManager',

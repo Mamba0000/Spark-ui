@@ -5,7 +5,7 @@
         :span="2"
         :offset="0"
       ><span style="float:left;">新增用户</span></el-col>
-      <el-col :span="2" />
+      <el-col :span="2"/>
       <el-col :span="6" :offset="12">
         <el-button
           style="float: right;"
@@ -13,67 +13,41 @@
           plain
           icon="el-icon-plus"
           @click="handleAdd"
-        >新增用户</el-button></el-col>
+        >新增用户
+        </el-button>
+      </el-col>
 
       <el-col
         :span="2"
-      ><el-button
-        style="float: right;"
-        type="danger"
-        plain
-        icon="el-icon-close"
-        @click="handleBatchDelete"
-      >批量删除</el-button></el-col>
-    </el-row>
-    <!--- top-search  --->
-    <el-row type="flex" class="top-search" justify="start" align="middle">
-      <el-col
-        :span="1"
-        :offset="0"
-      ><span style="float:left;">账号名</span></el-col>
-
-      <el-col :span="3">
-        <el-input
-          v-model="search.account"
-          size="small"
-          placeholder="请输入账号名"
-          clearable
-          @clear="handelSearch"
-          @keyup.enter.native="handelSearch"
-        /></el-col>
-
-      <el-col :span="1" :offset="1">
-        <span
-          style="float:left;"
-        >&emsp;&emsp;姓&emsp;&emsp;&emsp;名</span></el-col>
-
-      <el-col :span="3" :offset="0">
-        <el-input
-          v-model="search.realName"
-          size="small"
-          placeholder="请输入姓名"
-          clearable
-          @clear="handelSearch"
-          @keyup.enter.native="handelSearch"
-        /></el-col>
-
-      <el-col :span="2" :offset="0">
+      >
         <el-button
           style="float: right;"
-          type="primary"
-          icon="el-icon-search"
-          @click="handelSearch"
-        >搜索</el-button></el-col>
-
-      <el-col
-        :span="2"
-      ><el-button
-        style="float: right;"
-        plain
-        icon="el-icon-delete"
-        @click="handleReseat"
-      >重置</el-button></el-col>
+          type="danger"
+          plain
+          icon="el-icon-close"
+          @click="handleBatchDelete"
+        >批量删除
+        </el-button>
+      </el-col>
     </el-row>
+    <!--- top-search  --->
+
+    <div class="top-search">
+      <el-form :inline="true" :model="search" class="demo-form-inline">
+        <el-form-item label="账号名">
+          <el-input v-model="search.account" placeholder="请输入账号名"></el-input>
+        </el-form-item>
+        <el-form-item label="请输入姓名">
+          <el-input v-model="search.realName" placeholder="请输入姓名"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch" icon="el-icon-search">查询</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" plain @click="handleReseat" icon="el-icon-delete">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
 
     <div class="table-body">
       <el-table
@@ -84,26 +58,26 @@
         :cell-style="cellStyle"
         @selection-change="selectionChange"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55"/>
 
-        <el-table-column label="#" type="index" width="50" />
+        <el-table-column label="#" type="index" width="50"/>
 
-        <el-table-column label="账号" width="160">
+        <el-table-column label="账号" width="120">
           <template slot-scope="scope">
             <span>{{ scope.row.account }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="昵称" width="160">
+        <el-table-column label="昵称" width="120">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.nickname }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="姓名" width="160">
+        <el-table-column label="姓名" width="120">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.realName }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="邮箱" width="160">
+        <el-table-column label="邮箱" width="120">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.email }}</span>
           </template>
@@ -121,12 +95,12 @@
         <el-table-column label="生日" width="80">
           <template slot-scope="scope">
             <span style="margin-left: 10px">{{
-              dateFormat(scope.row.birthday)
-            }}</span>
+                dateFormat(scope.row.birthday)
+              }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column label="租户ID" width="180">
+        <el-table-column label="租户ID" width="120">
           <template slot-scope="scope">
             <el-tag size="medium">{{ scope.row.tenantId }}</el-tag>
           </template>
@@ -142,17 +116,20 @@
             <el-button
               size="mini"
               @click="rowEdit(scope.$index, scope.row)"
-            >编辑</el-button>
+            >编辑
+            </el-button>
             <el-button
               size="mini"
               type="primary"
               @click="rowEdit(scope.$index, scope.row)"
-            >修改密码</el-button>
+            >修改密码
+            </el-button>
             <el-button
               size="mini"
               type="danger"
               @click="rowDeleteLogic(scope.$index, scope.row)"
-            >删除</el-button>
+            >删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -167,7 +144,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
-      <copyright />
+      <copyright/>
     </div>
     <!-- 新增或修改菜单对话框 -->
     <el-dialog
@@ -180,12 +157,12 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="账户" prop="account">
-              <el-input v-model="form.account" placeholder="请输入账户名称" />
+              <el-input v-model="form.account" placeholder="请输入账户名称"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="姓名" prop="name">
-              <el-input v-model="form.name" placeholder="请输入姓名" />
+              <el-input v-model="form.name" placeholder="请输入姓名"/>
             </el-form-item>
           </el-col>
           <el-col v-if="!form.id" :span="12">
@@ -216,7 +193,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="手机号码" prop="phone">
-              <el-input v-model="form.phone" placeholder="请输入手机号码" />
+              <el-input v-model="form.phone" placeholder="请输入手机号码"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -410,10 +387,11 @@ export default {
             this.init()
             this.$baseMessage('操作成功', 'success')
           })
-          .catch(function() {})
+          .catch(function() {
+          })
       }
     },
-    handelSearch() {
+    handleSearch() {
       this.init()
     },
     handleReseat() {
@@ -488,7 +466,8 @@ export default {
             type: 'success'
           })
         })
-        .catch(function() {})
+        .catch(function() {
+        })
     },
     init() {
       // 默认第一页

@@ -27,65 +27,27 @@
       >批量删除</el-button></el-col>
     </el-row>
     <!--- top-search  --->
-    <el-row type="flex" class="top-search" justify="start" align="middle">
-      <el-col
-        :span="1"
-        :offset="0"
-      ><span style="float:left;">租户ID</span></el-col>
 
-      <el-col :span="3">
-        <el-input
-          v-model="search.tenantId"
-          size="small"
-          placeholder="请输入租户ID"
-          clearable
-          @clear="handelSearch"
-          @keyup.enter.native="handelSearch"
-        /></el-col>
+    <div class="top-search">
+      <el-form :inline="true" :model="search" class="demo-form-inline">
+        <el-form-item label="租户ID">
+          <el-input v-model="search.tenantId" placeholder="请输入租户ID"></el-input>
+        </el-form-item>
+        <el-form-item label="名称">
+          <el-input v-model="search.tenantName" placeholder="请输入租户名称"></el-input>
+        </el-form-item>
+        <el-form-item label="联系电话">
+          <el-input v-model="search.contactNumber" placeholder="请输入租户联系电话"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch" icon="el-icon-search">查询</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" plain @click="handleReseat" icon="el-icon-delete">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
 
-      <el-col :span="1" :offset="1">
-        <span style="float:left;">名称</span></el-col>
-
-      <el-col :span="3" :offset="0">
-        <el-input
-          v-model="search.tenantName"
-          size="small"
-          placeholder="请输入租户名称"
-          clearable
-          @clear="handelSearch"
-          @keyup.enter.native="handelSearch"
-        /></el-col>
-
-      <el-col :span="1" :offset="1">
-        <span style="float:left;">电话</span></el-col>
-
-      <el-col :span="3" :offset="0">
-        <el-input
-          v-model="search.contactNumber"
-          size="small"
-          placeholder="请输入租户联系电话"
-          clearable
-          @clear="handelSearch"
-          @keyup.enter.native="handelSearch"
-        /></el-col>
-
-      <el-col :span="2" :offset="0">
-        <el-button
-          style="float: right;"
-          type="primary"
-          icon="el-icon-search"
-          @click="handelSearch"
-        >搜索</el-button></el-col>
-
-      <el-col
-        :span="2"
-      ><el-button
-        style="float: right;"
-        plain
-        icon="el-icon-delete"
-        @click="handleReseat"
-      >重置</el-button></el-col>
-    </el-row>
     <!--- table-body--->
     <div class="table-body">
       <el-table
@@ -339,7 +301,7 @@ export default {
           .catch(function() {})
       }
     },
-    handelSearch() {
+    handleSearch() {
       this.init()
     },
     handleReseat() {
