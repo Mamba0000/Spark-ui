@@ -6,7 +6,7 @@
         :span="2"
         :offset="0"
       ><span style="float:left;">角色管理</span></el-col>
-      <el-col :span="2" />
+      <el-col :span="2"/>
       <el-col :span="6" :offset="12">
         <el-button
           style="float: right;"
@@ -14,23 +14,29 @@
           plain
           icon="el-icon-plus"
           @click="handleAdd"
-        >新增角色</el-button></el-col>
+        >新增角色
+        </el-button>
+      </el-col>
       <el-col
         :span="2"
-      ><el-button
-        style="float: right;"
-        type="danger"
-        plain
-        icon="el-icon-close"
-        @click="handleBatchDelete"
-      >批量删除</el-button></el-col>
+      >
+        <el-button
+          style="float: right;"
+          type="danger"
+          plain
+          icon="el-icon-close"
+          @click="handleBatchDelete"
+        >批量删除
+        </el-button>
+      </el-col>
     </el-row>
     <!--- top-search  --->
     <el-row type="flex" class="top-search" justify="start" align="middle">
       <el-col
         :span="1"
         :offset="0"
-      ><span style="float:left;">角色名称</span></el-col>
+      ><span style="float:left;">角色名称</span>
+      </el-col>
       <el-col :span="3">
         <el-input
           v-model="search.roleName"
@@ -39,7 +45,8 @@
           clearable
           @clear="handelSearch"
           @keyup.enter.native="handelSearch"
-        /></el-col>
+        />
+      </el-col>
 
       <el-col :span="2" :offset="1">
         <span style="float:left;">角色别名</span></el-col>
@@ -52,7 +59,8 @@
           clearable
           @clear="handelSearch"
           @keyup.enter.native="handelSearch"
-        /></el-col>
+        />
+      </el-col>
 
       <el-col :span="2" :offset="0">
         <el-button
@@ -60,16 +68,21 @@
           type="primary"
           icon="el-icon-search"
           @click="handelSearch"
-        >搜索</el-button></el-col>
+        >搜索
+        </el-button>
+      </el-col>
 
       <el-col
         :span="2"
-      ><el-button
-        style="float: right;"
-        plain
-        icon="el-icon-delete"
-        @click="handleReseat"
-      >重置</el-button></el-col>
+      >
+        <el-button
+          style="float: right;"
+          plain
+          icon="el-icon-delete"
+          @click="handleReseat"
+        >重置
+        </el-button>
+      </el-col>
     </el-row>
     <!--- table-body--->
     <div class="table-body">
@@ -82,8 +95,8 @@
         :max-height="600"
         @selection-change="selectionChange"
       >
-        <el-table-column type="selection" width="55" />
-        <el-table-column label="#" type="index" width="50" />
+        <el-table-column type="selection" width="55"/>
+        <el-table-column label="#" type="index" width="50"/>
         <el-table-column label="角色名称" width="160">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.roleName }}</span>
@@ -104,21 +117,29 @@
           <template slot-scope="scope">
             <el-button
               size="mini"
-              @click="rowEdit(scope.$index, scope.row)"
-            >权限</el-button>
+              @click="rowPermissonEdit(scope.$index, scope.row)"
+            >权限
+            </el-button>
+            <el-button
+              size="mini"
+              @click="rowMenuEdit(scope.$index, scope.row)"
+            >菜单
+            </el-button>
             <el-button
               size="mini"
               @click="rowEdit(scope.$index, scope.row)"
-            >编辑</el-button>
+            >编辑
+            </el-button>
             <el-button
               size="mini"
               type="danger"
               @click="rowDeleteLogic(scope.$index, scope.row)"
-            >删除</el-button>
+            >删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
-      <copyright />
+      <copyright/>
     </div>
     <!-- 新增或修改菜单对话框 -->
     <el-dialog
@@ -131,16 +152,58 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="角色名称" prop="roleName">
-              <el-input v-model="form.roleName" placeholder="请输入角色名称" />
+              <el-input v-model="form.roleName" placeholder="请输入角色名称"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="角色别名" prop="roleAlias">
-              <el-input v-model="form.roleAlias" placeholder="请输入角色别名" />
+              <el-input v-model="form.roleAlias" placeholder="请输入角色别名"/>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog
+      :title="titleRoleMenu"
+      :visible.sync="dailogVisibilityRoleMenu"
+      width="600px"
+      append-to-body
+    >
+      <el-tree
+        :data="data"
+        show-checkbox
+        node-key="id"
+        :default-expanded-keys="[2, 3]"
+        :default-checked-keys="[5]"
+        :props="defaultProps"
+      />
+
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog
+      :title="titleRolePermission"
+      :visible.sync="dailogVisibilityRolePermission"
+      width="600px"
+      append-to-body
+    >
+      <el-tree
+        :data="data"
+        show-checkbox
+        node-key="id"
+        :default-expanded-keys="[2, 3]"
+        :default-checked-keys="[5]"
+        :props="defaultProps"
+      />
+
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
@@ -168,6 +231,8 @@ export default {
         status: '1'
       },
       title: '',
+      titleRoleMenu: '',
+      titleRolePermission: '',
       rules: {
         roleName: [
           { required: true, message: '请输入角色名', trigger: 'blur' },
@@ -228,7 +293,8 @@ export default {
             this.init()
             this.$baseMessage('操作成功', 'success')
           })
-          .catch(function() {})
+          .catch(function() {
+          })
       }
     },
     handelSearch() {
@@ -288,6 +354,18 @@ export default {
       this.form = row
       console.log(index, row)
     },
+    rowRoleMenuEdit(index, row) {
+      this.dailogVisibilityRoleMenu = true
+      this.titleRoleMenu = '菜单设置'
+      // this.form = row
+      console.log(index, row)
+    },
+    rowRolePermissonEdit(index, row) {
+      this.dailogVisibilityRolePermisson = true
+      this.titleRolePermission = '权限设置'
+      // this.form = row
+      console.log(index, row)
+    },
     rowDeleteLogic(index, row) {
       const that = this
       this.$confirm(
@@ -309,7 +387,8 @@ export default {
             type: 'success'
           })
         })
-        .catch(function() {})
+        .catch(function() {
+        })
     },
     init() {
       this.getRoleList()
