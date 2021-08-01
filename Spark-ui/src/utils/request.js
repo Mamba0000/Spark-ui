@@ -21,6 +21,9 @@ service.interceptors.request.use(
       // please modify it according to the actual situation
       config.headers['spark-auth'] = getToken()
     }
+    if (process.env.NODE_ENV === 'development') {
+      console.log(config.baseURL + config.url + '  requse params ==>   ' + JSON.stringify(config.params) + '    requse data ==>    ' + JSON.stringify(config.data))
+    }
     return config
   },
   error => {

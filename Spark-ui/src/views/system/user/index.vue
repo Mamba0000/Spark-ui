@@ -4,7 +4,7 @@
       <el-col
         :span="2"
         :offset="0"
-      ><span style="float:left;">新增用户</span></el-col>
+      ><span style="float:left;">用户管理</span></el-col>
       <el-col :span="2"/>
       <el-col :span="6" :offset="12">
         <el-button
@@ -82,11 +82,6 @@
             <span size="medium">{{ scope.row.email }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="电话" width="160">
-          <template slot-scope="scope">
-            <span size="medium">{{ scope.row.phone }}</span>
-          </template>
-        </el-table-column>
         <el-table-column label="性别" width="60">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.sexName }}</span>
@@ -121,13 +116,19 @@
             <el-button
               size="mini"
               type="primary"
-              @click="rowEdit(scope.$index, scope.row)"
-            >修改密码
+              @click="rowReset(scope.$index, scope.row)"
+            >重置密码
+            </el-button>
+            <el-button
+              size="mini"
+              type="success"
+              @click="rowRole(scope.$index, scope.row)"
+            >角色配置
             </el-button>
             <el-button
               size="mini"
               type="danger"
-              @click="rowDeleteLogic(scope.$index, scope.row)"
+              @click="rowRemoveByIds(scope.$index, scope.row)"
             >删除
             </el-button>
           </template>
@@ -149,7 +150,7 @@
     <!-- 新增或修改菜单对话框 -->
     <el-dialog
       :title="title"
-      :visible.sync="dailogVisibility"
+      :visible.sync="dialogVisibility"
       width="600px"
       append-to-body
     >
@@ -257,6 +258,64 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 重置密码 菜单 -->
+    <el-dialog
+      title="重置密码"
+      :visible.sync="dialogVisibilityResetPassword"
+      width="600px"
+      append-to-body
+    >
+      <el-form ref="formResetPassword" :model="form" :rules="rules" label-width="80px">
+        <el-row>
+          <el-col v-if="form.id" :span="24">
+            <el-form-item label="新密码" prop="password">
+              <el-input
+                v-model="form.password"
+                type="password"
+                placeholder="请输入密码"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col v-if="form.id" :span="24">
+            <el-form-item label="确认密码" prop="rePassword2">
+              <el-input
+                v-model="form.rePassword2"
+                type="password"
+                placeholder="请输入确认密码"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFormResetPassword">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 配置角色菜单 -->
+    <el-dialog
+      title="角色配置"
+      :visible.sync="dialogVisibilityRole"
+      width="600px"
+      append-to-body
+    >
+      <el-tree
+        :data="dataRole"
+        show-checkbox
+        ref="treeRole"
+        node-key="id"
+        :default-expanded-keys="defaultCheckedRoleKeys"
+        :default-checked-keys="defaultCheckedRoleKeys"
+        :props="defaultProps"
+      />
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFormRole">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -264,7 +323,14 @@
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
-import { list as getUserList, addOrUpdate, deleteLogic } from '@/api/user'
+import {
+  list as getUserList,
+  saveOrUpdate,
+  removeByIds,
+  resetPassword,
+  listAllTreeRoleByUser,
+  grantRole
+} from '@/api/user'
 // 角色
 import { list as getRoleList } from '@/api/role'
 // 部门
@@ -272,11 +338,26 @@ import { list as getDeptList } from '@/api/dept'
 // 岗位
 import { list as getPostList } from '@/api/post'
 
+import { getCheckedId } from '@/utils/index.js'
+
 export default {
   components: { Treeselect },
   data() {
     const rePassword = (rule, value, callback) => {
       if (value) {
+        console.log(value)
+        if (this.form.password !== value) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      } else {
+        callback(new Error('请再次输入密码'))
+      }
+    }
+    const rePassword2 = (rule, value, callback) => {
+      if (value) {
+        console.log(value)
         if (this.form.password !== value) {
           callback(new Error('两次输入的密码不一致'))
         } else {
@@ -292,6 +373,13 @@ export default {
       menuOptions: [],
       postListData: [],
       selectionList: [],
+      dataRole: [],
+      currentRow: undefined,
+      defaultCheckedRoleKeys: [],
+      defaultProps: {
+        children: 'children',
+        label: 'roleName'
+      },
       total: 0,
       search: {
         account: '',
@@ -299,7 +387,9 @@ export default {
         current: 1,
         size: 10
       },
-      dailogVisibility: false,
+      dialogVisibility: false,
+      dialogVisibilityResetPassword: false,
+      dialogVisibilityRole: false,
       layout: 'total, sizes, prev, pager, next, jumper',
       form: {
         status: '1',
@@ -346,6 +436,9 @@ export default {
         rePassword: [
           { required: true, validator: rePassword, trigger: 'blur' }
         ],
+        rePassword2: [
+          { required: true, validator: rePassword2, trigger: 'blur' }
+        ],
         deptId: [{ required: true, message: '请选择部门', trigger: 'change' }],
         postId: [{ required: true, message: '请选择岗位', trigger: 'change' }],
         roleId: [{ required: true, message: '请选择角色', trigger: 'change' }]
@@ -367,7 +460,7 @@ export default {
   methods: {
     handleAdd() {
       this.resetForm()
-      this.dailogVisibility = true
+      this.dialogVisibility = true
       this.title = '新增用户'
     },
     handleBatchDelete() {
@@ -381,7 +474,7 @@ export default {
         })
           .then(() => {
             // 批量删除
-            return deleteLogic(this.ids)
+            return removeByIds(this.ids)
           })
           .then(() => {
             this.init()
@@ -419,15 +512,49 @@ export default {
     submitForm() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          addOrUpdate(this.form).then(response => {
+          saveOrUpdate(this.form).then(response => {
             if (response.code === 200) {
               this.$message({
                 message: '操作成功',
                 type: 'success'
               })
-              this.dailogVisibility = false
+              this.dialogVisibility = false
               this.init()
             }
+          })
+        }
+      })
+    },
+    submitFormResetPassword() {
+      this.$refs['formResetPassword'].validate(valid => {
+        if (valid) {
+          resetPassword(this.form).then(response => {
+            if (response.code === 200) {
+              this.$message({
+                message: '操作成功',
+                type: 'success'
+              })
+              this.dialogVisibilityResetPassword = false
+              this.init()
+            }
+          })
+        }
+      })
+    },
+    submitFormRole() {
+      const data = { userIds: this.currentRow.id, roleIds: this.$refs.treeRole.getCheckedKeys().join(',') }
+      grantRole(data).then(response => {
+        if (response.code === 200) {
+          this.$message({
+            message: '操作成功',
+            type: 'success'
+          })
+          this.dialogVisibilityRole = false
+          this.init()
+        } else {
+          this.$message({
+            message: '操作失败' + response.message,
+            type: 'error'
           })
         }
       })
@@ -436,16 +563,27 @@ export default {
       this.selectionList = list
     },
     cancel() {
-      this.dailogVisibility = false
+      this.dialogVisibility = false
+      this.dialogVisibilityResetPassword = false
+      this.dialogVisibilityRole = false
     },
     rowEdit(index, row) {
-      console.log('' + index + row)
-      this.dailogVisibility = true
+      this.dialogVisibility = true
       this.title = '编辑用户'
       this.form = row
-      console.log(index, row)
     },
-    rowDeleteLogic(index, row) {
+    rowReset(index, row) {
+      this.dialogVisibilityResetPassword = true
+      this.form = row
+      this.form.password = ''
+      this.form.rePassword = ''
+    },
+    rowRole(index, row) {
+      this.dialogVisibilityRole = true
+      this.currentRow = row
+      this.listAllTreeRoleByUser(row)
+    },
+    rowRemoveByIds(index, row) {
       const that = this
       this.$confirm(
         '是否确认删除名称为"' + row.account + '"的数据项?',
@@ -457,7 +595,7 @@ export default {
         }
       )
         .then(function() {
-          return that.deleteLogic(row.id)
+          return that.removeByIds(row.id)
         })
         .then(() => {
           this.init()
@@ -486,9 +624,18 @@ export default {
         //   this.listLoading = false
       })
     },
-    deleteLogic(ids) {
+    listAllTreeRoleByUser(row) {
+      // this.listLoading = true
+      // 分页查询用户
+      listAllTreeRoleByUser(row).then(response => {
+        this.dataRole = response.data
+        this.defaultCheckedRoleKeys = getCheckedId(this.dataRole)
+        //   this.listLoading = false
+      })
+    },
+    removeByIds(ids) {
       // 删除用户
-      deleteLogic(ids).then(response => {
+      removeByIds(ids).then(response => {
         //   this.listLoading = false
       })
     },
@@ -501,6 +648,7 @@ export default {
       getDeptList({}).then(response => {
         const menu = { id: -1, deptName: '主类目', children: [] }
         menu.children = response.data
+        this.menuOptions = []
         this.menuOptions.push(menu)
       })
     },

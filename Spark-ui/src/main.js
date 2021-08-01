@@ -33,7 +33,6 @@ Vue.use(ElementUI, { locale, size: 'small' })
 // 如果想要中文版 element-ui，按如下方式声明
 // Vue.use(ElementUI)
 import Copyright from '@/views/copyright'
-
 Vue.component('copyright', Copyright)
 
 Vue.config.productionTip = false

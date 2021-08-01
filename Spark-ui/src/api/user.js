@@ -2,8 +2,6 @@ import request from '@/utils/request'
 
 // 用户登录
 export function login(data) {
-  // params URL传参 data:body传参
-  console.log(request)
   return request({
     url: '/spark-auth/token',
     method: 'post',
@@ -18,7 +16,6 @@ export function login(data) {
  * @returns
  */
 export function list(data) {
-  // params URL传参 data:body传参
   return request({
     url: '/service-uum/user/list',
     method: 'get',
@@ -36,10 +33,9 @@ export function list(data) {
  * @param {*} data  '12375,12321'
  * @returns
  */
-export function deleteLogic(data) {
-  // params URL传参 data:body传参
+export function removeByIds(data) {
   return request({
-    url: '/service-uum/user/deleteLogic',
+    url: '/service-uum/user/removeByIds',
     method: 'post',
     params: { ids: data }
   })
@@ -50,11 +46,9 @@ export function deleteLogic(data) {
  * @param {} data
  * @returns
  */
-export function addOrUpdate(data) {
-  // params URL传参 data:body传参
-  console.log(request)
+export function saveOrUpdate(data) {
   return request({
-    url: '/service-uum/user/addOrUpdate',
+    url: '/service-uum/user/saveOrUpdate',
     method: 'post',
     data: {
       account: data.account,
@@ -74,3 +68,44 @@ export function addOrUpdate(data) {
     }
   })
 }
+
+export function resetPassword(data) {
+  return request({
+    url: '/service-uum/user/resetPassword',
+    method: 'post',
+    params: {
+      newPassword: data.password,
+      newPassword1: data.rePassword2,
+      userId: data.id
+    }
+  })
+}
+
+export function listAllTreeRoleByUser(data) {
+  return request({
+    url: '/service-uum/user/listAllTreeRoleByUser',
+    method: 'get',
+    params: {
+      id: data.id,
+      tenantId: data.tenantId
+
+    }
+  })
+}
+
+/**
+ * 用户授权
+ * @param {*} data  '12375,12321'
+ * @returns
+ */
+export function grantRole(data) {
+  return request({
+    url: '/service-uum/user/grantRole',
+    method: 'post',
+    params: {
+      userIds: data.userIds,
+      roleIds: data.roleIds
+    }
+  })
+}
+

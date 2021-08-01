@@ -36,7 +36,6 @@
         :header-cell-style="headerCellStyle"
         :cell-style="cellStyle"
         :max-height="600"
-        default-expand-all
         :tree-props="{ children: 'children', hasChildren: '有毒' }"
       >
         <el-table-column type="selection" width="55" />
@@ -46,11 +45,6 @@
         <el-table-column label="名称" width="160" prop="name">
           <template slot-scope="scope">
             <span>{{ scope.row.name }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="别名" width="120" prop="alias">
-          <template slot-scope="scope">
-            <span size="medium">{{ scope.row.alias }}</span>
           </template>
         </el-table-column>
         <el-table-column label="编码" width="120" prop="code">
@@ -73,14 +67,24 @@
             <span size="medium">{{ scope.row.category }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="是否打开新页面" width="110" prop="isOpen">
+        <el-table-column label="title" width="80" prop="alias">
           <template slot-scope="scope">
-            <span size="medium">{{ scope.row.isOpen }}</span>
+            <span size="medium">{{ scope.row.title }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="备注" width="80" prop="alias">
+        <el-table-column label="component" width="160" prop="alias">
           <template slot-scope="scope">
-            <span size="medium">{{ scope.row.remark }}</span>
+            <span size="medium">{{ scope.row.component }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="重定向路径" width="160" prop="alias">
+          <template slot-scope="scope">
+            <span size="medium">{{ scope.row.redirect }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="图标" width="160" prop="alias">
+          <template slot-scope="scope">
+            <span size="medium">{{ scope.row.icon }}</span>
           </template>
         </el-table-column>
 
@@ -98,7 +102,7 @@
             <el-button
               size="mini"
               type="danger"
-              @click="rowDeleteLogic(scope.$index, scope.row)"
+              @click="rowRemoveByIds(scope.$index, scope.row)"
             >删除</el-button>
           </template>
         </el-table-column>
@@ -110,7 +114,7 @@
     <el-dialog
       :title="title"
       :visible.sync="dialogVisibility"
-      width="600px"
+      width="800px"
       append-to-body
     >
       <el-form
@@ -186,6 +190,21 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="重定向" prop="redirect">
+              <el-input v-model="form.redirect" placeholder="请输入路径" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="菜单标题" prop="title">
+              <el-input v-model="form.title" placeholder="请输入菜单title" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="菜单组件" prop="component">
+              <el-input v-model="form.component" placeholder="请输入菜单组件" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="菜单状态" size="mini" prop="status">
               <el-radio-group v-model="form.status">
                 <el-radio-button label="1">启用</el-radio-button>
@@ -216,7 +235,7 @@
 <script>
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import { tree, addOrUpdate, deleteLogic } from '@/api/menu'
+import { tree, saveOrUpdate, removeByIds } from '@/api/menu'
 
 export default {
   components: { Treeselect },
@@ -290,7 +309,7 @@ export default {
         })
           .then(() => {
             // 批量删除
-            return deleteLogic(this.ids)
+            return removeByIds(this.ids)
           })
           .then(() => {
             this.init()
@@ -325,7 +344,7 @@ export default {
     submitForm() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          addOrUpdate(this.form).then(response => {
+          saveOrUpdate(this.form).then(response => {
             if (response.code === 200) {
               this.$message({
                 message: '操作成功',
@@ -357,7 +376,7 @@ export default {
       this.form.parentId = row.id
       console.log(index, row)
     },
-    rowDeleteLogic(index, row) {
+    rowRemoveByIds(index, row) {
       const that = this
       this.$confirm(
         '是否确认删除名称为"' + row.name + '"的数据项?',
@@ -369,7 +388,7 @@ export default {
         }
       )
         .then(function() {
-          return that.deleteLogic(row.id)
+          return that.removeByIds(row.id)
         })
         .then(() => {
           this.init()
@@ -397,8 +416,8 @@ export default {
         // this.menuOptions = response.data
       })
     },
-    deleteLogic(ids) {
-      deleteLogic(ids).then(response => {
+    removeByIds(ids) {
+      removeByIds(ids).then(response => {
         this.tree()
       })
     },

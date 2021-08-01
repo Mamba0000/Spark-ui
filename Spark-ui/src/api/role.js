@@ -86,10 +86,10 @@ export function grantRolePermission(data) {
  * @param {*} data  '12375,12321'
  * @returns
  */
-export function deleteLogic(data) {
-  // params URL传参 data:body传参
+export function removeByIds(data) {
+
   return request({
-    url: '/service-uum/role/deleteLogic',
+    url: '/service-uum/role/removeByIds',
     method: 'post',
     params: { ids: data }
   })
@@ -100,10 +100,10 @@ export function deleteLogic(data) {
  * @param {} data
  * @returns
  */
-export function addOrUpdate(data) {
-  console.log(request)
+export function saveOrUpdate(data) {
+
   return request({
-    url: '/service-uum/role/addOrUpdate',
+    url: '/service-uum/role/saveOrUpdate',
     method: 'post',
     data: {
       roleName: data.roleName,

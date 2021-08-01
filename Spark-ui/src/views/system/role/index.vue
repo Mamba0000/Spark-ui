@@ -92,13 +92,19 @@
             </el-button>
             <el-button
               size="mini"
+              type="warning"
+              @click="rowRoleMenuEdit(scope.$index, scope.row)"
+            >用户配置
+            </el-button>
+            <el-button
+              size="mini"
               @click="rowEdit(scope.$index, scope.row)"
             >编辑
             </el-button>
             <el-button
               size="mini"
               type="danger"
-              @click="rowDeleteLogic(scope.$index, scope.row)"
+              @click="rowRemoveByIds(scope.$index, scope.row)"
             >删除
             </el-button>
           </template>
@@ -182,14 +188,16 @@
 </template>
 <script>
 import {
-  addOrUpdate,
-  deleteLogic,
+  saveOrUpdate,
+  removeByIds,
   grantRoleMenu,
   grantRolePermission,
   list as getRoleList,
   listAllMenuByRoleIds,
   listAllTreePermissionByRoleIds
 } from '@/api/role'
+
+import { getCheckedId } from '@/utils/index.js'
 
 export default {
   data() {
@@ -274,7 +282,7 @@ export default {
         })
           .then(() => {
             // 批量删除
-            return deleteLogic(this.ids)
+            return removeByIds(this.ids)
           })
           .then(() => {
             this.init()
@@ -311,7 +319,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           console.log(this.form)
-          addOrUpdate(this.form).then(response => {
+          saveOrUpdate(this.form).then(response => {
             if (response.code === 200) {
               this.$message({
                 message: '操作成功',
@@ -357,7 +365,7 @@ export default {
             message: '操作成功',
             type: 'success'
           })
-          this.dialogVisibilityRoleMenu = false
+          this.dialogVisibilityRolePermission = false
           this.init()
         } else {
           this.$message({
@@ -390,9 +398,10 @@ export default {
     rowRolePermissionEdit(index, row) {
       this.dialogVisibilityRolePermission = true
       this.titleRolePermission = '权限设置'
+      this.currentRow = row
       this.listAllTreePermissionByRoleIds(row.id)
     },
-    rowDeleteLogic(index, row) {
+    rowRemoveByIds(index, row) {
       const that = this
       this.$confirm(
         '是否确认删除名称为"' + row.roleName + '"的数据项?',
@@ -404,7 +413,7 @@ export default {
         }
       )
         .then(function() {
-          return that.deleteLogic(row.id)
+          return that.removeByIds(row.id)
         })
         .then(() => {
           this.init()
@@ -428,34 +437,23 @@ export default {
         console.log(this)
       })
     },
-    deleteLogic(ids) {
+    removeByIds(ids) {
       // 删除用户
-      deleteLogic(ids).then(response => {
+      removeByIds(ids).then(response => {
         //   this.listLoading = false
       })
     },
     listAllMenuByRoleIds(ids) {
       listAllMenuByRoleIds(ids).then(response => {
         this.dataRoleMenu = response.data
-        this.defaultCheckedMenuKeys = this.getCheckedId(this.dataRoleMenu)
+        this.defaultCheckedMenuKeys = getCheckedId(this.dataRoleMenu)
       })
     },
     listAllTreePermissionByRoleIds(ids) {
       listAllTreePermissionByRoleIds(ids).then(response => {
         this.dataRolePermission = response.data
-        this.defaultCheckedPermissionKeys = this.getCheckedId(this.dataRolePermission)
+        this.defaultCheckedPermissionKeys = getCheckedId(this.dataRolePermission)
       })
-    },
-    getCheckedId(data) { // 获取选中的id
-      const array = []
-      function list(data) {
-        data.forEach(item => {
-          if (item.check) array.push(item.id)
-          if (item.children) list(item.children)
-        })
-      }
-      list(data)
-      return array
     },
     // 格式处理相关
     // 更改表头样式

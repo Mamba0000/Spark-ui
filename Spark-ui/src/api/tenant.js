@@ -6,7 +6,6 @@ import request from '@/utils/request'
  * @returns
  */
 export function list(data) {
-  // params URL传参 data:body传参
   return request({
     url: '/service-uum/tenant/list',
     method: 'get',
@@ -25,10 +24,9 @@ export function list(data) {
  * @param {*} data  '12375,12321'
  * @returns
  */
-export function deleteLogic(data) {
-  // params URL传参 data:body传参
+export function removeByIds(data) {
   return request({
-    url: '/service-uum/tenant/deleteLogic',
+    url: '/service-uum/tenant/removeByIds',
     method: 'post',
     params: { ids: data }
   })
@@ -39,11 +37,9 @@ export function deleteLogic(data) {
  * @param {} data
  * @returns
  */
-export function addOrUpdate(data) {
-  // params URL传参 data:body传参
-  console.log(request)
+export function saveOrUpdate(data) {
   return request({
-    url: '/service-uum/tenant/addOrUpdate',
+    url: '/service-uum/tenant/saveOrUpdate',
     method: 'post',
     data: {
       id: data.id,

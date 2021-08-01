@@ -1,6 +1,6 @@
 import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { resetRouter } from '@/router'
+import { resetRouter, asyncRouter } from '@/router'
 
 const getDefaultState = () => {
   return {
@@ -37,13 +37,14 @@ const actions = {
         const { data } = response
         commit('SET_TOKEN', data.accessToken)
         setToken(data.accessToken)
+        // 登录成功后动态加载导航
+        asyncRouter(data.menuVOS)
         resolve()
       }).catch(error => {
         reject(error)
       })
     })
   },
-
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {

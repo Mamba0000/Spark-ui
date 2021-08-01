@@ -1,5 +1,5 @@
 import router from './router'
-// import store from './store'
+import store from './store'
 // import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
@@ -24,35 +24,35 @@ router.beforeEach(async(to, from, next) => {
   if (hasToken) {
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
+      // 首页
       next({ path: '/' })
       NProgress.done()
     } else {
       // update by liyicheng 直接跳
+      // 判断是否已经获取 前端菜单等 如果有说明路由已经加载成功可以跳转 如果没有请求 直到成功后跳转
       next()
-      /*
-      const hasGetUserInfo = store.getters.name
-      if (hasGetUserInfo) {
-        next()
-      } else {
-        try {
-          debugger
-          // get user info
-          await store.dispatch('user/getInfo')
-
-          next()
-        } catch (error) {
-          // remove token and go to login page to re-login
-          await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
-          next(`/login?redirect=${to.path}`)
-          NProgress.done()
-        }
-      }
-      **/
+      //
+      // const hasGetUserInfo = store.getters.name
+      // if (hasGetUserInfo) {
+      //   next()
+      // } else {
+      //   try {
+      //     debugger
+      //     // get user info
+      //     await store.dispatch('user/getInfo')
+      //
+      //     next()
+      //   } catch (error) {
+      //     // remove token and go to login page to re-login
+      //     await store.dispatch('user/resetToken')
+      //     Message.error(error || 'Has Error')
+      //     next(`/login?redirect=${to.path}`)
+      //     NProgress.done()
+      //   }
+      // }
     }
   } else {
     /* has no token*/
-
     if (whiteList.indexOf(to.path) !== -1) {
       // in the free login whitelist, go directly
       next()

@@ -110,7 +110,7 @@
             <el-button
               size="mini"
               type="danger"
-              @click="rowDeleteLogic(scope.$index, scope.row)"
+              @click="rowRemoveByIds(scope.$index, scope.row)"
             >删除</el-button>
           </template>
         </el-table-column>
@@ -187,7 +187,7 @@
   </div>
 </template>
 <script>
-import { list as getTenantList, addOrUpdate, deleteLogic } from '@/api/tenant'
+import { list, saveOrUpdate, removeByIds } from '@/api/tenant'
 
 export default {
   data() {
@@ -292,7 +292,7 @@ export default {
         })
           .then(() => {
             // 批量删除
-            return deleteLogic(this.ids)
+            return removeByIds(this.ids)
           })
           .then(() => {
             this.init()
@@ -313,11 +313,11 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.getTenantList()
+      this.list()
     },
     handleCurrentChange(val) {
       this.search.current = val
-      this.getTenantList()
+      this.list()
     },
     resetForm() {
       this.form = {
@@ -333,7 +333,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           console.log(this.form)
-          addOrUpdate(this.form).then(response => {
+          saveOrUpdate(this.form).then(response => {
             if (response.code === 200) {
               this.$message({
                 message: '操作成功',
@@ -363,7 +363,7 @@ export default {
       this.form = row
       console.log(index, row)
     },
-    rowDeleteLogic(index, row) {
+    rowRemoveByIds(index, row) {
       const that = this
       this.$confirm(
         '是否确认删除名称为"' + row.account + '"的数据项?',
@@ -375,7 +375,7 @@ export default {
         }
       )
         .then(function() {
-          return that.deleteLogic(row.id)
+          return that.removeByIds(row.id)
         })
         .then(() => {
           this.init()
@@ -387,19 +387,19 @@ export default {
         .catch(function() {})
     },
     init() {
-      this.getTenantList()
+      this.list()
     },
-    getTenantList() {
+    list() {
       // this.listLoading = true
       // 分页查询用户
-      getTenantList(this.search).then(response => {
+      list(this.search).then(response => {
         this.tableData = response.data.records
         this.total = response.data.total
       })
     },
-    deleteLogic(ids) {
+    removeByIds(ids) {
       // 删除用户
-      deleteLogic(ids).then(response => {
+      removeByIds(ids).then(response => {
         //   this.listLoading = false
       })
     },

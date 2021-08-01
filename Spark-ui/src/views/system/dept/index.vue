@@ -4,7 +4,7 @@
       <el-col
         :span="2"
         :offset="0"
-      ><span style="float:left;">权限管理</span></el-col>
+      ><span style="float:left;">组织部门管理</span></el-col>
       <el-col :span="2"/>
       <el-col :span="6" :offset="12">
         <el-button
@@ -13,7 +13,7 @@
           plain
           icon="el-icon-plus"
           @click="handleAdd"
-        >新增权限
+        >新增组织部门
         </el-button>
       </el-col>
       <el-col
@@ -32,11 +32,11 @@
     <!--- top-search  --->
     <div class="top-search">
       <el-form :inline="true" :model="search" class="demo-form-inline">
-        <el-form-item label="权限名称">
-          <el-input v-model="search.name" placeholder="请输入权限名称"></el-input>
+        <el-form-item label="组织部门名称">
+          <el-input v-model="search.deptName" placeholder="请输入组织部门名称"></el-input>
         </el-form-item>
-        <el-form-item label="权限标识">
-          <el-input v-model="search.value" placeholder="请输入权限标识"></el-input>
+        <el-form-item label="组织部门全称">
+          <el-input v-model="search.fullName" placeholder="请输入组织部门标识"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch" icon="el-icon-search">查询</el-button>
@@ -63,24 +63,39 @@
 
         <el-table-column label="#" type="index" width="50"/>
 
-        <el-table-column label="权限名称" width="160">
+        <el-table-column label="名称" width="160">
           <template slot-scope="scope">
-            <span>{{ scope.row.name }}</span>
+            <span>{{ scope.row.deptName }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="权限标识" width="160">
+        <el-table-column label="全称" width="160">
           <template slot-scope="scope">
-            <span size="medium">{{ scope.row.value }}</span>
+            <span size="medium">{{ scope.row.fullName }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="权限描述" width="160">
+        <el-table-column label="排序" width="60">
           <template slot-scope="scope">
-            <span size="medium">{{ scope.row.description }}</span>
+            <span size="medium">{{ scope.row.sort }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="权限分类" width="160">
+        <el-table-column label="类型" width="60">
           <template slot-scope="scope">
             <span size="medium">{{ scope.row.categoryId }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="租户ID" width="120">
+          <template slot-scope="scope">
+            <el-tag size="medium">{{ scope.row.tenantId }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="租户名称" width="120">
+          <template slot-scope="scope">
+            <el-tag size="medium">{{ scope.row.tenantName }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="备注" width="180">
+          <template slot-scope="scope">
+            <span size="medium">{{ scope.row.remark }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作">
@@ -113,34 +128,39 @@
       width="600px"
       append-to-body
     >
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="120px">
         <el-row>
           <el-col :span="24">
-            <el-form-item label="上级权限" prop="parentId">
+            <el-form-item label="上级组织部门" prop="parentId">
               <treeselect
                 v-model="form.parentId"
-                placeholder="选择上级权限"
+                placeholder="选择上级组织部门"
                 :options="menuOptions"
                 :normalizer="normalizer"
               />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="权限名称" prop="name">
-              <el-input v-model="form.name" placeholder="请输入权限名称"/>
+            <el-form-item label="组织部门名称" prop="name">
+              <el-input v-model="form.deptName" placeholder="请输入组织部门名称"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="权限标识" prop="value">
-              <el-input v-model="form.value" placeholder="请输入权限标识"/>
+            <el-form-item label="组织部门全称" prop="value">
+              <el-input v-model="form.fullName" placeholder="请输入组织部门全称"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="权限类别" size="mini">
-              <el-radio-group v-model="form.categoryId">
-                <el-radio-button label="1">接口权限</el-radio-button>
-                <el-radio-button label="2">数据权限</el-radio-button>
-              </el-radio-group>
+            <el-form-item label="组织部门类别" size="mini">
+              <el-select v-model="form.categoryId" placeholder="请选择活动区域">
+                <el-option label="公司" value="1"></el-option>
+                <el-option label="部门" value="2"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="备注" prop="value">
+              <el-input v-model="form.remark" placeholder="请输入备注"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -155,7 +175,7 @@
 <script>
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import { list, saveOrUpdate, removeByIds } from '@/api/permission'
+import { list, saveOrUpdate, removeByIds } from '@/api/dept'
 
 export default {
   components: { Treeselect },
@@ -165,8 +185,8 @@ export default {
       selectionList: [],
       menuOptions: [],
       search: {
-        name: '',
-        value: '',
+        deptName: '',
+        fullName: '',
         current: 1,
         size: 10
       },
@@ -178,11 +198,11 @@ export default {
         parentId: [
           { required: true, message: '上级不能为空', trigger: 'blur' }
         ],
-        name: [
-          { required: true, message: '请输入权限名', trigger: 'blur' }
+        deptName: [
+          { required: true, message: '请输入组织部门名称', trigger: 'blur' }
         ],
-        value: [
-          { required: true, message: '请输入权限值', trigger: 'blur' }
+        fullName: [
+          { required: true, message: '请输入组织部门全称', trigger: 'blur' }
         ]
       }
     }
@@ -203,7 +223,7 @@ export default {
     handleAdd() {
       this.resetForm()
       this.dialogVisibility = true
-      this.title = '新增权限'
+      this.title = '新增组织部门'
     },
     handleBatchDelete() {
       if (this.selectionList.length === 0) {
@@ -230,8 +250,8 @@ export default {
       this.init()
     },
     handleReseat() {
-      this.search.name = ''
-      this.search.value = ''
+      this.search.deptName = ''
+      this.search.fullName = ''
       this.search.current = 1
       this.init()
     },
@@ -270,7 +290,7 @@ export default {
     },
     rowEdit(index, row) {
       this.dialogVisibility = true
-      this.title = '编辑权限'
+      this.title = '编辑组织部门'
       this.form = row
     },
     rowAdd(index, row) {
@@ -283,7 +303,7 @@ export default {
     rowRemoveByIds(index, row) {
       const that = this
       this.$confirm(
-        '是否确认删除名称为"' + row.name + '"的数据项?',
+        '是否确认删除名称为"' + row.deptName + '"的数据项?',
         '警告',
         {
           confirmButtonText: '确定',
@@ -311,17 +331,17 @@ export default {
     },
     list() {
       // this.listLoading = true
-      // 分页查询权限
+      // 分页查询组织部门
       list(this.search).then(response => {
         this.tableData = response.data
         this.menuOptions = []
-        const menu = { id: 0, name: '顶级权限', children: [] }
+        const menu = { id: 0, deptName: '顶级组织部门', children: [] }
         menu.children = response.data
         this.menuOptions.push(menu)
       })
     },
     removeByIds(ids) {
-      // 删除权限
+      // 删除组织部门
       removeByIds(ids).then(response => {
         //   this.listLoading = false
       })
@@ -329,7 +349,7 @@ export default {
     normalizer(node) {
       return {
         id: node.id,
-        label: node.name,
+        label: node.deptName,
         children: node.children
       }
     },
@@ -345,16 +365,6 @@ export default {
       // if (columnIndex !== 1 && columnIndex !== 3) {
       return 'text-align: center'
       // }
-    },
-    dateFormat(datetime) {
-      if (datetime) {
-        datetime = new Date(datetime)
-        const y = datetime.getFullYear() + '-'
-        const mon = datetime.getMonth() + 1 + '-'
-        const d = datetime.getDate()
-        return y + mon + d
-      }
-      return ''
     }
   }
 }

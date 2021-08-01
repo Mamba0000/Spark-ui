@@ -6,7 +6,6 @@ import request from '@/utils/request'
  * @returns
  */
 export function list(data) {
-  // params URL传参 data:body传参
   return request({
     url: '/service-uum/menu/list',
     method: 'get',
@@ -25,12 +24,22 @@ export function list(data) {
  * @returns
  */
 export function tree(data) {
-  // params URL传参 data:body传参
   return request({
     url: '/service-uum/menu/tree',
     method: 'get',
-    params: {
-    }
+    params: {}
+  })
+}
+
+/**
+ *  前端路由菜单
+ * @returns {AxiosPromise}
+ */
+export function routes() {
+  return request({
+    url: '/service-uum/menu/routes',
+    method: 'get',
+    params: {}
   })
 }
 
@@ -39,10 +48,9 @@ export function tree(data) {
  * @param {*} data  '12375,12321'
  * @returns
  */
-export function deleteLogic(data) {
-  // params URL传参 data:body传参
+export function removeByIds(data) {
   return request({
-    url: '/service-uum/menu/deleteLogic',
+    url: '/service-uum/menu/removeByIds',
     method: 'post',
     params: { ids: data }
   })
@@ -53,11 +61,9 @@ export function deleteLogic(data) {
  * @param {} data
  * @returns
  */
-export function addOrUpdate(data) {
-  // params URL传参 data:body传参
-  console.log(request)
+export function saveOrUpdate(data) {
   return request({
-    url: '/service-uum/menu/addOrUpdate',
+    url: '/service-uum/menu/saveOrUpdate',
     method: 'post',
     data: {
       parentId: data.parentId,
@@ -75,6 +81,10 @@ export function addOrUpdate(data) {
       hidden: data.hidden,
       icon: data.icon,
       status: data.status,
+      title: data.title,
+      redirect: data.redirect,
+      component: data.component,
+
       isDeleted: data.isDeleted
     }
   })

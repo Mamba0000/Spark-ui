@@ -1,65 +1,65 @@
 import request from '@/utils/request'
 
 /**
- *  组织部门列表
+ *  字典列表
  * @param {*} data
  * @returns
  */
 export function list(data) {
   return request({
-    url: '/service-uum/dept/list',
+    url: '/service-system/dict/list',
     method: 'get',
     params: {
-      deptName: data.deptName,
+      dictKey: data.dictKey,
+      dictValue: data.dictValue,
+      code: data.code,
       current: data.current,
-      size: data.size,
-      fullName: data.fullName
+      size: data.size
     }
   })
 }
 
 /**
- *  组织部门列表 tree
+ *  字典列表 tree
  * @param {*} data
  * @returns
  */
 export function tree(data) {
   return request({
-    url: '/service-uum/dept/tree',
+    url: '/service-system/dict/tree',
     method: 'get',
-    params: {
-    }
+    params: {}
   })
 }
 
 /**
- * 删除组织部门
+ * 删除字典
  * @param {*} data  '12375,12321'
  * @returns
  */
 export function removeByIds(data) {
-
   return request({
-    url: '/service-uum/dept/removeByIds',
+    url: '/service-system/dict/removeByIds',
     method: 'post',
     params: { ids: data }
   })
 }
 
 /**
- * 添加或修改组织部门
+ * 添加或修改字典
  * @param {} data
  * @returns
  */
 export function saveOrUpdate(data) {
+  debugger
   return request({
-    url: '/service-uum/dept/saveOrUpdate',
+    url: '/service-system/dict/saveOrUpdate',
     method: 'post',
     data: {
       parentId: data.parentId,
-      deptName: data.deptName,
-      fullName: data.fullName,
-      categoryId: data.categoryId,
+      dictKey: data.dictKey,
+      dictValue: data.dictValue,
+      code: data.code,
       id: data.id,
       sort: data.sort,
       remark: data.remark,

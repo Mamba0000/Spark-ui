@@ -2,6 +2,8 @@
  * Created by PanJiaChen on 16/11/18.
  */
 
+import Vue from 'vue'
+
 /**
  * Parse the time to string
  * @param {(Object|string|number)} time
@@ -115,3 +117,16 @@ export function param2Obj(url) {
   })
   return obj
 }
+
+export function getCheckedId(data) { // 获取选中的id
+  const array = []
+  function list(data) {
+    data.forEach(item => {
+      if (item.check) array.push(item.id)
+      if (item.children) list(item.children)
+    })
+  }
+  list(data)
+  return array
+}
+
